@@ -1,0 +1,68 @@
+// Copyright 2021 Fedlearn authors.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Fedlearn gPRC proto file
+syntax = "proto3";
+
+package transmission;
+
+// RPC transmission service for all algorithms between clients and master.
+service Transmission {
+    // refactored universal rpc service interface, unary
+    rpc comm(ReqResMessage) returns (ReqResMessage) {}
+}
+
+// RPC message vector definition
+message Vector {
+    repeated double values = 1;
+}
+
+// RPC message matrix definition
+message Matrix {
+    repeated Vector rows = 1;
+}
+
+// record sending/receiving terminal information
+message MachineInfo {
+    string ip = 1;
+    string port = 2;
+    string token = 3;
+}
+
+// description of value in the message dict
+message DictValNote {
+    bool is_list_value = 1;
+    int32 buff_type = 2;
+    int32 buff_start_ind = 3;
+    int32 val_elm_amount = 4;
+}
+
+// general request/response message.
+message ReqResMessage {
+    // source and target machine information
+    MachineInfo source_machine_info = 1;
+    MachineInfo target_machine_info = 2;
+    // phase
+    string phase_num = 3;
+    // for weights/data, format: bytes list.
+    repeated bytes multi_bytes = 4;
+    // for weights/data, format: list.
+    repeated Matrix matrices = 5;
+    repeated Vector vectors = 6;
+    repeated double values = 7;
+    // for saving all "simple" string/int32 parameters in the input dict.
+    repeated string strings = 8;
+    repeated int32 ints = 9;
+    // description of dict_to_array
+    map<string, DictValNote> dict_notes = 10;
+}

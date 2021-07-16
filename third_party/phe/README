@@ -1,0 +1,5 @@
+Name: phe
+Description: A library for Partially Homomorphic Encryption in Python
+GitHub: https://github.com/data61/python-paillier
+Version: 1.4.0
+License: GPL-3.0 License

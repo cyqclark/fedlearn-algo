@@ -1,0 +1,5 @@
+Name: transformers
+Description: Transformers: State-of-the-art Natural Language Processing for Pytorch, TensorFlow, and JAX.
+GitHub: https://github.com/huggingface/transformers
+Version: 4.7.0
+License: Apache-2.0 License

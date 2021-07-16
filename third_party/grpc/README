@@ -1,0 +1,5 @@
+Name: grpc
+Description: The C based gRPC (C++, Python, Ruby, Objective-C, PHP, C#)
+GitHub: https://github.com/grpc/grpc
+Version: 1.38.0
+License: Apache-2.0 License

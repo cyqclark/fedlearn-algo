@@ -1,0 +1,5 @@
+Name: protobuf
+Description: Protocol Buffers - Google's data interchange format
+GitHub: https://github.com/protocolbuffers/protobuf
+Version: 3.12.2
+License: BSD-3-Clause License

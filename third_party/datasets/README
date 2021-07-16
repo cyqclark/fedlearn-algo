@@ -1,0 +1,5 @@
+Name: datasets
+Description: The largest hub of ready-to-use NLP datasets for ML models with fast, easy-to-use and efficient data manipulation tools
+GitHub: https://github.com/huggingface/datasets
+Version: 1.8.0
+License: Apache-2.0 License

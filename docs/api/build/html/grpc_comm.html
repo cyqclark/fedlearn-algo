@@ -1,0 +1,408 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>grpc_comm package &#8212; fedlearn-algo 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">fedlearn-algo 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">grpc_comm package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="grpc-comm-package">
+<h1>grpc_comm package<a class="headerlink" href="#grpc-comm-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-grpc_comm.grpc_client">
+<span id="grpc-comm-grpc-client-module"></span><h2>grpc_comm.grpc_client module<a class="headerlink" href="#module-grpc_comm.grpc_client" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_comm.grpc_client.GRPCClient">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">grpc_comm.grpc_client.</span></span><span class="sig-name descname"><span class="pre">GRPCClient</span></span><a class="headerlink" href="#grpc_comm.grpc_client.GRPCClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>gRPC Client.</p>
+<p>This class packs the gRPC unary communication, and it also converts the input and output messages.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="grpc_comm.grpc_client.GRPCClient.send_request">
+<span class="sig-name descname"><span class="pre">send_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">RequestMessage</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grpc_comm.grpc_client.GRPCClient.send_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Static method. Active sending RequestMessage and receiving ResponseMessage.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">send_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">common_req_msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send RequestMessage and receive ResponseMessage.</p>
+<p>This function should be called by federated master terminal.
+Active sending RequestMessage and receiving ResponseMessage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>common_req_msg</strong> (<a class="reference internal" href="entity.common.html#entity.common.message.RequestMessage" title="entity.common.message.RequestMessage"><em>RequestMessage</em></a>) – request message created by alg in master terminal.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the feedback of response results in the ResponseMessage from gRPC server.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="entity.common.html#entity.common.message.ResponseMessage" title="entity.common.message.ResponseMessage">ResponseMessage</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_comm.grpc_client.send_request">
+<span class="sig-prename descclassname"><span class="pre">grpc_comm.grpc_client.</span></span><span class="sig-name descname"><span class="pre">send_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">common_req_msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grpc_comm.grpc_client.send_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send RequestMessage and receive ResponseMessage.</p>
+<p>This function should be called by federated master terminal.
+Active sending RequestMessage and receiving ResponseMessage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>common_req_msg</strong> (<a class="reference internal" href="entity.common.html#entity.common.message.RequestMessage" title="entity.common.message.RequestMessage"><em>RequestMessage</em></a>) – request message created by alg in master terminal.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the feedback of response results in the ResponseMessage from gRPC server.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="entity.common.html#entity.common.message.ResponseMessage" title="entity.common.message.ResponseMessage">ResponseMessage</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-grpc_comm.grpc_converter">
+<span id="grpc-comm-grpc-converter-module"></span><h2>grpc_comm.grpc_converter module<a class="headerlink" href="#module-grpc_comm.grpc_converter" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.MsgListElmType">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">grpc_comm.grpc_converter.</span></span><span class="sig-name descname"><span class="pre">MsgListElmType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grpc_comm.grpc_converter.MsgListElmType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.MsgListElmType.bytes_t">
+<span class="sig-name descname"><span class="pre">bytes_t</span></span><em class="property"> <span class="pre">=</span> <span class="pre">5</span></em><a class="headerlink" href="#grpc_comm.grpc_converter.MsgListElmType.bytes_t" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.MsgListElmType.empty_t">
+<span class="sig-name descname"><span class="pre">empty_t</span></span><em class="property"> <span class="pre">=</span> <span class="pre">-1</span></em><a class="headerlink" href="#grpc_comm.grpc_converter.MsgListElmType.empty_t" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.MsgListElmType.ints_t">
+<span class="sig-name descname"><span class="pre">ints_t</span></span><em class="property"> <span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#grpc_comm.grpc_converter.MsgListElmType.ints_t" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.MsgListElmType.matrices_t">
+<span class="sig-name descname"><span class="pre">matrices_t</span></span><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#grpc_comm.grpc_converter.MsgListElmType.matrices_t" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.MsgListElmType.strings_t">
+<span class="sig-name descname"><span class="pre">strings_t</span></span><em class="property"> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#grpc_comm.grpc_converter.MsgListElmType.strings_t" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.MsgListElmType.values_t">
+<span class="sig-name descname"><span class="pre">values_t</span></span><em class="property"> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#grpc_comm.grpc_converter.MsgListElmType.values_t" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.MsgListElmType.vectors_t">
+<span class="sig-name descname"><span class="pre">vectors_t</span></span><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#grpc_comm.grpc_converter.MsgListElmType.vectors_t" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.arrays_to_common_dict_msg">
+<span class="sig-prename descclassname"><span class="pre">grpc_comm.grpc_converter.</span></span><span class="sig-name descname"><span class="pre">arrays_to_common_dict_msg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict_buffs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dict_notes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><a class="headerlink" href="#grpc_comm.grpc_converter.arrays_to_common_dict_msg" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert ResponseMessage to grpc response message.</p>
+<p>A function to convert buffer and records to a common msg dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dict_buffs</strong> (<em>dictionary</em>) – dict buffers.</p></li>
+<li><p><strong>dict_notes</strong> (<em>dictionary</em>) – dict description.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>msg_body_dict</strong> – common msg body, same as the algorithm’s input.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dictionary</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.common_dict_msg_to_arrays">
+<span class="sig-prename descclassname"><span class="pre">grpc_comm.grpc_converter.</span></span><span class="sig-name descname"><span class="pre">common_dict_msg_to_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg_body_dict</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grpc_comm.grpc_converter.common_dict_msg_to_arrays" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert msg body to a dict buffer and a dict description.</p>
+<p>A function to reorganize the buffer used in the input msg body,
+and record each element’s location (buffer indices).
+A common msg dict to arrays for proto building, e.g., matrices, vectors and so on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msg_body_dict</strong> (<em>dictionary</em>) – alg defined msg body.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>temp_dict_buffs</strong> (<em>dictionary</em>) – dict buffer.</p></li>
+<li><p><strong>temp_dict_notes</strong> (<em>dictionary</em>) – dict description.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.common_msg_to_grpc_msg">
+<span class="sig-prename descclassname"><span class="pre">grpc_comm.grpc_converter.</span></span><span class="sig-name descname"><span class="pre">common_msg_to_grpc_msg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">common_msg</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">transmission_pb2.ReqResMessage</span><a class="headerlink" href="#grpc_comm.grpc_converter.common_msg_to_grpc_msg" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert ResponseMessage to grpc response message.</p>
+<p>A function to convert algorithm’s ResponseMessage to grpc message which could be sent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>common_msg</strong> (<a class="reference internal" href="entity.common.html#entity.common.message.RequestMessage" title="entity.common.message.RequestMessage"><em>RequestMessage</em></a><em> or </em><a class="reference internal" href="entity.common.html#entity.common.message.ResponseMessage" title="entity.common.message.ResponseMessage"><em>ResponseMessage</em></a>) – algorithm’s common message from algorithms.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>grpc message.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>transmission_pb2.ReqResMessage</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.create_grpc_message">
+<span class="sig-prename descclassname"><span class="pre">grpc_comm.grpc_converter.</span></span><span class="sig-name descname"><span class="pre">create_grpc_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sender</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">core.entity.common.machineinfo.MachineInfo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receiver</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">core.entity.common.machineinfo.MachineInfo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dict_buffs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dict_notes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_num</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">transmission_pb2.ReqResMessage</span><a class="headerlink" href="#grpc_comm.grpc_converter.create_grpc_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>create grpc message.</p>
+<p>Create grpc messages for both input and output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sender</strong> (<a class="reference internal" href="entity.common.html#entity.common.machineinfo.MachineInfo" title="entity.common.machineinfo.MachineInfo"><em>MachineInfo</em></a>) – sender’s ip, port and token information.</p></li>
+<li><p><strong>receiver</strong> (<a class="reference internal" href="entity.common.html#entity.common.machineinfo.MachineInfo" title="entity.common.machineinfo.MachineInfo"><em>MachineInfo</em></a>) – receiver’s ip, port and token information.</p></li>
+<li><p><strong>dict_buffs</strong> (<em>dictionary</em>) – dict buffer.</p></li>
+<li><p><strong>dict_notes</strong> (<em>dictionary</em>) – dict description.</p></li>
+<li><p><strong>phase_num</strong> (<em>str</em>) – algorithm’s phase.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>temp_dict_buffs</strong> – grpc message.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>transmission_pb2.ReqResMessage</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.determine_elm_type">
+<span class="sig-prename descclassname"><span class="pre">grpc_comm.grpc_converter.</span></span><span class="sig-name descname"><span class="pre">determine_elm_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">first_elm</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">int</span><a class="headerlink" href="#grpc_comm.grpc_converter.determine_elm_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the type of list elm.</p>
+<p>Support string, int, transmission_pb2.Matrix, transmission_pb2.Vector, float, bytes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>first_elm</strong> (<em>str</em><em>, </em><em>int</em><em>, </em><em>one-</em><em> or </em><em>two-dimensional numpy array</em><em>, </em><em>float</em><em>, </em><em>bytes</em>) – the first element of list (list is not empty).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an enum value (its value, an integrate) about the element type.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.grpc_msg_to_common_msg">
+<span class="sig-prename descclassname"><span class="pre">grpc_comm.grpc_converter.</span></span><span class="sig-name descname"><span class="pre">grpc_msg_to_common_msg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grpc_msg</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">transmission_pb2.ReqResMessage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comm_req_res</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grpc_comm.grpc_converter.grpc_msg_to_common_msg" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert grpc request message to RequestMessage or ResponseMessage.</p>
+<p>A function to convert grpc’s message to RequestMessage or ResponseMessage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grpc_msg</strong> (<em>grpc message</em><em>, </em><em>ReqResMessage</em>) – grpc message sent from grpc massage.</p></li>
+<li><p><strong>comm_req_res</strong> (<em>int</em>) – identify the type of output common message, is RequestMessage or ResponseMessage</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>common request message for alg.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="entity.common.html#entity.common.message.RequestMessage" title="entity.common.message.RequestMessage">RequestMessage</a> or <a class="reference internal" href="entity.common.html#entity.common.message.ResponseMessage" title="entity.common.message.ResponseMessage">ResponseMessage</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.matrix_to_numpy_array">
+<span class="sig-prename descclassname"><span class="pre">grpc_comm.grpc_converter.</span></span><span class="sig-name descname"><span class="pre">matrix_to_numpy_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">transmission_pb2.Matrix</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.array</span><a class="headerlink" href="#grpc_comm.grpc_converter.matrix_to_numpy_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>transmission_pb2.Matrix to numpy.array.</p>
+<p>A function to convert a transmission_pb2.Matrix to numpy.array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>matrix</strong> (<em>transmission_pb2.Matrix</em>) – a gRPC matrix object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a matrix of numpy.array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.parse_grpc_message">
+<span class="sig-prename descclassname"><span class="pre">grpc_comm.grpc_converter.</span></span><span class="sig-name descname"><span class="pre">parse_grpc_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grpc_message</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">transmission_pb2.ReqResMessage</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#grpc_comm.grpc_converter.parse_grpc_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>parse grpc message.</p>
+<p>A function to parse grpc message to msg notes, bytes, phase_num and other variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>grpc_message</strong> (<em>transmission_pb2.ReqResMessage</em><em>,</em>) – grpc message.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>sender</strong> (<em>MachineInfo</em>) – sender’s ip, port and token information.</p></li>
+<li><p><strong>receiver</strong> (<em>MachineInfo</em>) – receiver’s ip, port and token information.</p></li>
+<li><p><strong>dict_buffs</strong> (<em>dictionary</em>) – dict buffer.</p></li>
+<li><p><strong>dict_notes</strong> (<em>dictionary</em>) – dict description.</p></li>
+<li><p><strong>phase_num</strong> (<em>str</em>) – algorithm’s phase.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_comm.grpc_converter.vector_to_numpy_array">
+<span class="sig-prename descclassname"><span class="pre">grpc_comm.grpc_converter.</span></span><span class="sig-name descname"><span class="pre">vector_to_numpy_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">transmission_pb2.Vector</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.array</span><a class="headerlink" href="#grpc_comm.grpc_converter.vector_to_numpy_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>transmission_pb2.Vector to numpy.array.</p>
+<p>A function to convert a transmission_pb2.Vector to numpy.array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vector</strong> (<em>transmission_pb2.Vector</em>) – a gRPC vector object.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a vector of numpy.array.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-grpc_comm.grpc_server">
+<span id="grpc-comm-grpc-server-module"></span><h2>grpc_comm.grpc_server module<a class="headerlink" href="#module-grpc_comm.grpc_server" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="grpc_comm.grpc_server.serve">
+<span class="sig-prename descclassname"><span class="pre">grpc_comm.grpc_server.</span></span><span class="sig-name descname"><span class="pre">serve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grpc_servicer</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">core.proto.transmission_pb2_grpc.TransmissionServicer</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#grpc_comm.grpc_server.serve" title="Permalink to this definition">¶</a></dt>
+<dd><p>gRPC server.</p>
+<p>Open gRPC service as a server, and monitor gRPC request and return gRPC response.
+This function should be called by the federated clients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>grpc_servicer</strong> (<em>class derived from transmission_pb2_grpc.TransmissionServicer</em>) – request message created by alg in master terminal.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>This function has no return variables.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-grpc_comm">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-grpc_comm" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">grpc_comm package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-grpc_comm.grpc_client">grpc_comm.grpc_client module</a></li>
+<li><a class="reference internal" href="#module-grpc_comm.grpc_converter">grpc_comm.grpc_converter module</a></li>
+<li><a class="reference internal" href="#module-grpc_comm.grpc_server">grpc_comm.grpc_server module</a></li>
+<li><a class="reference internal" href="#module-grpc_comm">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/grpc_comm.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">fedlearn-algo 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">grpc_comm package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Bo Liu.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.3.
+    </div>
+  </body>
+</html>

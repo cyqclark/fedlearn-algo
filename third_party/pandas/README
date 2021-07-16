@@ -1,0 +1,5 @@
+Name: pandas
+Description: lexible and powerful data analysis / manipulation library for Python, providing labeled data structures similar to R data.frame objects, statistical functions, and much more
+GitHub: https://github.com/pandas-dev/pandas
+Version: 1.2.4
+License: BSD-3-Clause License

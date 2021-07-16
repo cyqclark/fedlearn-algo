@@ -1,0 +1,5 @@
+Name: orjson
+Description: Fast, correct Python JSON library supporting dataclasses, datetimes, and numpy
+GitHub: https://github.com/ijl/orjson
+Version: 3.5.2
+License: Apache-2.0 License

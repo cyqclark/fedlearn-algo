@@ -1,0 +1,5 @@
+Name: pytorch
+Description: Tensors and Dynamic neural networks in Python with strong GPU acceleration
+GitHub: https://github.com/pytorch/pytorch
+Version: 1.9
+License: BSD

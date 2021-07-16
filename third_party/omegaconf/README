@@ -1,0 +1,5 @@
+Name: omegaconf
+Description: Flexible Python configuration system. The last one you will ever need.
+GitHub: https://github.com/omry/omegaconf
+Version: 2.1.0
+License: BSD-3-Clause License

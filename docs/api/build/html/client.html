@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>client package &#8212; fedlearn-algo 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">fedlearn-algo 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">client package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="client-package">
+<h1>client package<a class="headerlink" href="#client-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-client.client">
+<span id="client-client-module"></span><h2>client.client module<a class="headerlink" href="#module-client.client" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="client.client.Client">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">client.client.</span></span><span class="sig-name descname"><span class="pre">Client</span></span><a class="headerlink" href="#client.client.Client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">core.proto.transmission_pb2_grpc.TransmissionServicer</span></code></p>
+<p>Basic client class</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="client.client.Client.comm">
+<span class="sig-name descname"><span class="pre">comm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grpc_request</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">transmission_pb2.ReqResMessage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">transmission_pb2.ReqResMessage</span><a class="headerlink" href="#client.client.Client.comm" title="Permalink to this definition">¶</a></dt>
+<dd><p>refactored universal rpc service interface, unary</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="client.client.Client.dict_functions">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dict_functions</span></span><a class="headerlink" href="#client.client.Client.dict_functions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of functions that store the training function mapping as
+&lt;phase_id: training_function&gt;.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="client.client.Client.inference_init">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">inference_init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#client.client.Client.inference_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inference initialization function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="client.client.Client.load_model">
+<span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><a class="headerlink" href="#client.client.Client.load_model" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model_path</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>model</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="client.client.Client.process_request">
+<span class="sig-name descname"><span class="pre">process_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">core.entity.common.message.RequestMessage</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">core.entity.common.message.ResponseMessage</span><a class="headerlink" href="#client.client.Client.process_request" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>request</strong> (<a class="reference internal" href="entity.common.html#entity.common.message.RequestMessage" title="entity.common.message.RequestMessage"><em>RequestMessage</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>response</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="entity.common.html#entity.common.message.ResponseMessage" title="entity.common.message.ResponseMessage">ResponseMessage</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="client.client.Client.save_model">
+<span class="sig-name descname"><span class="pre">save_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#client.client.Client.save_model" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_path</strong> (<em>str</em>) – </p></li>
+<li><p><strong>model</strong> (<em>dict</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="client.client.Client.train_init">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">train_init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#client.client.Client.train_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Training initialization function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="client.client.ClientError">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">client.client.</span></span><span class="sig-name descname"><span class="pre">ClientError</span></span><a class="headerlink" href="#client.client.ClientError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-client">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-client" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">client package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-client.client">client.client module</a></li>
+<li><a class="reference internal" href="#module-client">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/client.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">fedlearn-algo 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">client package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Bo Liu.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+Name: numpy
+Description: The fundamental package for scientific computing with Python.
+GitHub: https://github.com/numpy/numpy
+Version: 1.19.2
+License: BSD-3-Clause License
