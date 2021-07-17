@@ -82,16 +82,3 @@ Please cite FedLearn-algo in your publications if it makes some contributions to
   Year = {2021}
 }
 ```
-
-## Contributors
-The main contributors (**sorted by last name**) to this project are as follows:
-- Liefeng Bo
-- Yanqing Chen
-- Peng Dai
-- Heng Huang
-- Bo Liu
-- Huasong Shan
-- Chaowei Tan
-- Jiazhou Wang
-- Houpu Yao
-- Tao Zeng
