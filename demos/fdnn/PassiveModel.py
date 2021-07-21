@@ -14,16 +14,15 @@
 __doc__ = "Passive Models"
 
 import os
-import pickle
 
 import numpy
 import pandas
 
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, Flatten, Conv2D
+from tensorflow.keras.layers import Dense
 from tensorflow.python.keras.models import Model
 
-import TrainHelper, util
+import TrainHelper
 
 # TODO: hold model on java side
 _DEEP_MODEL = (None, None, None) # (model_token, model, train_helper)

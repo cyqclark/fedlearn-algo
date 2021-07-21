@@ -19,7 +19,7 @@ import numpy
 import pandas
 
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, Flatten, Conv2D
+from tensorflow.keras.layers import Dense
 from tensorflow.python.keras.models import Model
 
 import TrainHelper
