@@ -26,14 +26,14 @@ echo "Python 3.6 checking finished."
 echo "3. check paillier packages..."
 
 yum install -y gmp-devel mpfr-devel mpc-devel libmpc-devel
-python3 -m pip install gmpy2 phe
+python3 -m pip install gmpy2 phe orjson
 
 echo "Paillier packages checking finished."
 
 echo "4. check numpy/scipy related..."
 ## numpy scipy related
 
-python3 -m pip install intel-numpy intel-scipy
+python3 -m pip install intel-numpy intel-scipy pandas sklearn
 
 ## grpc related
 
