@@ -1,0 +1,27 @@
+{
+    "pretrained_model_name":"bert-base-chinese",
+    "data_config":{
+        "train_file":"demos/HFL/example/pytorch/hugging_face/data/demo_train_data.txt",
+        "val_file": "demos/HFL/example/pytorch/hugging_face/data/demo_train_data.txt",
+        "mlm_probability":0.15,
+        "max_train_samples":1000,
+        "max_eval_samples":1000,
+        "pad_to_max_length":true,
+        "line_by_line":true
+    },
+    "train_config":{
+        "output_dir":"saved_bert_test_models",
+        "do_train":true,
+        "do_eval":true,
+        "report_to":"tensorboard",
+        "logging_dir":"log_test",
+        "evaluation_strategy":"steps",
+        "num_train_epochs":5,
+        "eval_steps":1000,
+        "per_device_train_batch_size":10,
+        "gradient_accumulation_steps":6,
+        "save_steps":3000,
+        "save_total_limit":5,
+        "dataloader_num_workers":4
+    }
+}
