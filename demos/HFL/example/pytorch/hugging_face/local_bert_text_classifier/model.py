@@ -26,10 +26,6 @@ if 1:
             torch.manual_seed(seed)
             torch.cuda.manual_seed_all(seed)
             # ^^ safe to call this function even if cuda is not available
-        #if is_tf_available():
-        #    print('is tf...')
-        #    import tensorflow as tf
-        #    tf.random.set_seed(seed)
 
     set_seed(1)
 
@@ -106,8 +102,8 @@ def train():
 
     training_args = TrainingArguments(
         output_dir='./results',          # output directory
-        #num_train_epochs=3,              # total number of training epochs
-        num_train_epochs=1,              # total number of training epochs
+        num_train_epochs=3,              # total number of training epochs
+        #num_train_epochs=1,              # total number of training epochs
         per_device_train_batch_size=16,  # batch size per device during training
         per_device_eval_batch_size=20,   # batch size for evaluation
         warmup_steps=500,                # number of warmup steps for learning rate scheduler
@@ -182,5 +178,5 @@ def test():
     print(get_prediction(text))
 
     #target_names
-#train()
+train()
 test()
