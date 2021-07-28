@@ -1,3 +1,9 @@
+import argparse
+from dataclasses import dataclass, field
+import os
+from typing import Optional, Union,Dict,List,Any
+from collections import OrderedDict
+
 import torch
 import transformers
 #from transformers.file_utils import is_tf_available, is_torch_available, is_torch_tpu_available
@@ -59,7 +65,6 @@ if 1:
         print(len(valid_texts), len(valid_labels))
     print(target_names)
 
-def train():
     # tokenize the dataset, truncate when passed `max_length`,
     # and pad with 0's when less than `max_length`
     train_encodings = tokenizer(train_texts, truncation=True, padding=True, max_length=max_length)
@@ -83,24 +88,20 @@ def train():
     train_dataset = NewsGroupsDataset(train_encodings, train_labels)
     valid_dataset = NewsGroupsDataset(valid_encodings, valid_labels)
 
-    #exit(1)
+@dataclass
+class DataConfig():
+    train_file:str
+    val_file:str
+    mlm_probability:float
+    max_train_samples:int
+    max_eval_samples:int
+    pad_to_max_length:bool =True
+    line_by_line:bool = True
+    preprocessing_num_workers:int = 8
+    max_seq_length:int = 256
 
-    # load the model and pass to CUDA
-    model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names)).to("cuda")
-
-    from sklearn.metrics import accuracy_score
-
-    def compute_metrics(pred):
-      labels = pred.label_ids
-      preds = pred.predictions.argmax(-1)
-      # calculate accuracy using sklearn's function
-      acc = accuracy_score(labels, preds)
-      return {
-          'accuracy': acc,
-      }
-
-
-    training_args = TrainingArguments(
+#TrainConfig = TrainingArguments
+TrainConfig = TrainingArguments(
         output_dir='./results',          # output directory
         num_train_epochs=3,              # total number of training epochs
         #num_train_epochs=1,              # total number of training epochs
@@ -115,9 +116,77 @@ def train():
         #evaluation_strategy="steps"      # evaluate each `logging_steps`
     )
 
+
+from sklearn.metrics import accuracy_score
+def compute_metrics(pred):
+      labels = pred.label_ids
+      preds = pred.predictions.argmax(-1)
+      # calculate accuracy using sklearn's function
+      acc = accuracy_score(labels, preds)
+      return {
+          'accuracy': acc,
+      }
+
+class BertTextClassifier():
+    def __init__(self,
+                 data_config:DataConfig,
+                 train_config:TrainConfig,
+                 pretrained_model_name='bert-base-chinese',
+                 init_from_local_pretrained=False):
+
+        self.data_config = data_config
+        self.train_config =  train_config
+
+        self.train_config.output_dir = os.path.join(
+              self.train_config.output_dir,
+              pretrained_model_name
+        )
+
+        # load the model and pass to CUDA
+        self.model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names)).to("cuda")
+        # load the tokenizer
+        self.tokenizer = transformers.BertTokenizerFast.from_pretrained(model_name, do_lower_case=True)
+
+    def train(self):
+        print('\t========BertTextClassifier=========', )
+
+        trainer = Trainer(
+            model=self.model,                         # the instantiated Transformers model to be trained
+            args=self.train_config,                  # training arguments, defined above
+            train_dataset=train_dataset,         # training dataset
+            eval_dataset=valid_dataset,          # evaluation dataset
+            compute_metrics=compute_metrics,     # the callback that computes metrics of interest
+        )
+
+        # train the model
+        trainer.train()
+
+        # evaluate the current model after training
+        trainer.evaluate()
+
+        # saving the fine tuned model & tokenizer
+        self.model.save_pretrained(model_path)
+        self.tokenizer.save_pretrained(model_path)
+
+
+    def set_model_parameters(self, 
+                                params:Dict[str,np.ndarray],
+                                mode='train'):
+            if mode =='train':
+                self.model.train()
+            else:
+                self.model.eval()
+                     
+            state_dict = OrderedDict({k: torch.Tensor(v) for k, v in params.items()})
+            self.model.load_state_dict(state_dict, strict=False)
+
+def train():
+    # load the model and pass to CUDA
+    model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names)).to("cuda")
+
     trainer = Trainer(
         model=model,                         # the instantiated Transformers model to be trained
-        args=training_args,                  # training arguments, defined above
+        args=TrainConfig,                    # training arguments, defined above
         train_dataset=train_dataset,         # training dataset
         eval_dataset=valid_dataset,          # evaluation dataset
         compute_metrics=compute_metrics,     # the callback that computes metrics of interest
@@ -178,5 +247,13 @@ def test():
     print(get_prediction(text))
 
     #target_names
-train()
-test()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--predict_or_train', type=str,default='train',choices=['predict','train'])
+    
+    args = parser.parse_args()
+    if args.predict_or_train == 'predict':
+        test()
+    else: 
+        train()
+        test()
