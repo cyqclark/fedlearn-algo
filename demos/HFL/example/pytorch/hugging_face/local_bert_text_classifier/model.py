@@ -1,12 +1,9 @@
-<<<<<<< HEAD
 import argparse
 from dataclasses import dataclass, field
 import os
 from typing import Optional, Union,Dict,List,Any
 from collections import OrderedDict
 
-=======
->>>>>>> 456f1a6e4c1959a3371ea720fb786f19c9d21f6a
 import torch
 import transformers
 #from transformers.file_utils import is_tf_available, is_torch_available, is_torch_tpu_available
@@ -35,13 +32,6 @@ if 1:
             torch.manual_seed(seed)
             torch.cuda.manual_seed_all(seed)
             # ^^ safe to call this function even if cuda is not available
-<<<<<<< HEAD
-=======
-        #if is_tf_available():
-        #    print('is tf...')
-        #    import tensorflow as tf
-        #    tf.random.set_seed(seed)
->>>>>>> 456f1a6e4c1959a3371ea720fb786f19c9d21f6a
 
     set_seed(1)
 
@@ -75,10 +65,6 @@ if 1:
         print(len(valid_texts), len(valid_labels))
     print(target_names)
 
-<<<<<<< HEAD
-=======
-def train():
->>>>>>> 456f1a6e4c1959a3371ea720fb786f19c9d21f6a
     # tokenize the dataset, truncate when passed `max_length`,
     # and pad with 0's when less than `max_length`
     train_encodings = tokenizer(train_texts, truncation=True, padding=True, max_length=max_length)
@@ -102,7 +88,6 @@ def train():
     train_dataset = NewsGroupsDataset(train_encodings, train_labels)
     valid_dataset = NewsGroupsDataset(valid_encodings, valid_labels)
 
-<<<<<<< HEAD
 @dataclass
 class DataConfig():
     train_file:str
@@ -115,7 +100,6 @@ class DataConfig():
     preprocessing_num_workers:int = 8
     max_seq_length:int = 256
 
-#TrainConfig = TrainingArguments
 TrainConfig = TrainingArguments(
         output_dir='./results',          # output directory
         num_train_epochs=3,              # total number of training epochs
@@ -134,16 +118,6 @@ TrainConfig = TrainingArguments(
 
 from sklearn.metrics import accuracy_score
 def compute_metrics(pred):
-=======
-    #exit(1)
-
-    # load the model and pass to CUDA
-    model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names)).to("cuda")
-
-    from sklearn.metrics import accuracy_score
-
-    def compute_metrics(pred):
->>>>>>> 456f1a6e4c1959a3371ea720fb786f19c9d21f6a
       labels = pred.label_ids
       preds = pred.predictions.argmax(-1)
       # calculate accuracy using sklearn's function
@@ -152,7 +126,6 @@ def compute_metrics(pred):
           'accuracy': acc,
       }
 
-<<<<<<< HEAD
 class BertTextClassifier():
     def __init__(self,
                  data_config:DataConfig,
@@ -213,27 +186,6 @@ def train():
     trainer = Trainer(
         model=model,                         # the instantiated Transformers model to be trained
         args=TrainConfig,                    # training arguments, defined above
-=======
-
-    training_args = TrainingArguments(
-        output_dir='./results',          # output directory
-        #num_train_epochs=3,              # total number of training epochs
-        num_train_epochs=1,              # total number of training epochs
-        per_device_train_batch_size=16,  # batch size per device during training
-        per_device_eval_batch_size=20,   # batch size for evaluation
-        warmup_steps=500,                # number of warmup steps for learning rate scheduler
-        weight_decay=0.01,               # strength of weight decay
-        logging_dir='./logs',            # directory for storing logs
-        #load_best_model_at_end=True,     # load the best model when finished training (default metric is loss)
-        # but you can specify `metric_for_best_model` argument to change to accuracy or other metric
-        logging_steps=200,               # log & save weights each logging_steps
-        #evaluation_strategy="steps"      # evaluate each `logging_steps`
-    )
-
-    trainer = Trainer(
-        model=model,                         # the instantiated Transformers model to be trained
-        args=training_args,                  # training arguments, defined above
->>>>>>> 456f1a6e4c1959a3371ea720fb786f19c9d21f6a
         train_dataset=train_dataset,         # training dataset
         eval_dataset=valid_dataset,          # evaluation dataset
         compute_metrics=compute_metrics,     # the callback that computes metrics of interest
@@ -243,11 +195,7 @@ def train():
     trainer.train()
 
     # evaluate the current model after training
-<<<<<<< HEAD
     trainer.evaluate()
-=======
-    #trainer.evaluate()
->>>>>>> 456f1a6e4c1959a3371ea720fb786f19c9d21f6a
 
     # saving the fine tuned model & tokenizer
     model.save_pretrained(model_path)
@@ -298,7 +246,6 @@ def test():
     print(get_prediction(text))
 
     #target_names
-<<<<<<< HEAD
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--predict_or_train', type=str,default='train',choices=['predict','train'])
@@ -309,7 +256,3 @@ if __name__ == '__main__':
     else: 
         train()
         test()
-=======
-#train()
-test()
->>>>>>> 456f1a6e4c1959a3371ea720fb786f19c9d21f6a
