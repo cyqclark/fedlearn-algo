@@ -127,7 +127,7 @@ def train():
     trainer.train()
 
     # evaluate the current model after training
-    #trainer.evaluate()
+    trainer.evaluate()
 
     # saving the fine tuned model & tokenizer
     model.save_pretrained(model_path)
