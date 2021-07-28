@@ -167,6 +167,8 @@ class BertTextClassifier():
         self.model.save_pretrained(model_path)
         self.tokenizer.save_pretrained(model_path)
 
+        return_matrics = {}
+        return self.get_model_parameters(), return_matrics
 
     def set_model_parameters(self, 
                                 params:Dict[str,np.ndarray],
@@ -178,6 +180,13 @@ class BertTextClassifier():
                      
             state_dict = OrderedDict({k: torch.Tensor(v) for k, v in params.items()})
             self.model.load_state_dict(state_dict, strict=False)
+
+    def get_model_parameters(self)->Dict[str,np.ndarray]:
+        return {
+            name: val.cpu().numpy()
+            for name, val in self.model.state_dict().items()
+            #if "bn" not in name
+            }
 
 def train():
     # load the model and pass to CUDA
