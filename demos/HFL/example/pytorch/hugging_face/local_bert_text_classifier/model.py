@@ -100,7 +100,6 @@ class DataConfig():
     preprocessing_num_workers:int = 8
     max_seq_length:int = 256
 
-#TrainConfig = TrainingArguments
 TrainConfig = TrainingArguments(
         output_dir='./results',          # output directory
         num_train_epochs=3,              # total number of training epochs
