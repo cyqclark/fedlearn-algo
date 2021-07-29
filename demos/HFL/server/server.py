@@ -58,7 +58,7 @@ from demos.HFL.client.client_com_manager_base import (
     ClientMode
 )
 
-_NUM_ROUNDS_=10
+_NUM_ROUNDS_= 5 #10
 class Server(Msg_Handler):
     """
     Federal learning Server

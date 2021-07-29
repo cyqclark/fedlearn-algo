@@ -102,8 +102,8 @@ class DataConfig():
 
 TrainConfig = TrainingArguments(
         output_dir='./results',          # output directory
-        num_train_epochs=3,              # total number of training epochs
-        #num_train_epochs=1,              # total number of training epochs
+        #num_train_epochs=3,              # total number of training epochs
+        num_train_epochs=10,              # total number of training epochs
         per_device_train_batch_size=16,  # batch size per device during training
         per_device_eval_batch_size=20,   # batch size for evaluation
         warmup_steps=500,                # number of warmup steps for learning rate scheduler
@@ -167,8 +167,14 @@ class BertTextClassifier():
         self.model.save_pretrained(model_path)
         self.tokenizer.save_pretrained(model_path)
 
-        return_matrics = {}
-        return self.get_model_parameters(), return_matrics
+        self.train_dataset = train_dataset
+        metrics = {}
+        max_train_samples = self.data_config.max_train_samples \
+                if self.data_config.max_train_samples is not None \
+                else len(self.train_dataset)
+        metrics["train_samples"] = min(max_train_samples, len(self.train_dataset))
+
+        return self.get_model_parameters(), metrics
 
     def set_model_parameters(self, 
                                 params:Dict[str,np.ndarray],
