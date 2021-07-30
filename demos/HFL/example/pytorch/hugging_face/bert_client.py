@@ -43,7 +43,7 @@ from demos.HFL.common.param_util import(
 )
 
 
-_TRAIN_DATA_FILE_='web_text_zh_testa.json'
+_TRAIN_DATA_FILE_='data/demo_train_data.txt'
 
 def get_train_args():
         train_data_file = f'{BERT_ROOT}/{_TRAIN_DATA_FILE_}'
@@ -52,7 +52,7 @@ def get_train_args():
             train_file=train_data_file,
             val_file=train_data_file,
             mlm_probability=0.15,
-            max_train_samples=10000,
+            max_train_samples=4500,
             max_eval_samples=1000,
             pad_to_max_length=True,
             line_by_line=True

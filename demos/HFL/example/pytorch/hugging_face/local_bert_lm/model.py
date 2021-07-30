@@ -67,7 +67,7 @@ TrainConfig = TrainingArguments
 
 _ROOTDIR_ = 'demos/HFL/example/pytorch/hugging_face'
 class BertMlM_Model():
-    TEXT_FIELD = 'content'
+    TEXT_FIELD = 'text'
     # MODEL_NAME_PAIR = {'bert-base-chinese':BertForMaskedLM, 'clue/albert_chinese_tiny':} 
     MODEL_NAME = ['bert-base-chinese','uer/chinese_roberta_L-2_H-128']
     def __init__(self,
@@ -223,9 +223,8 @@ class BertMlM_Model():
         padding = "max_length" if self.data_config.pad_to_max_length else False
 
         def tokenize_function(examples):
-            # Remove empty lines
             field = BertMlM_Model.TEXT_FIELD
-            examples[field] = [line for line in examples[field] if len(line) > 0 and not line.isspace()]
+            examples[field] = [str(line) for line in examples[field] if len(line) > 0 and not line.isspace()]
             return self.tokenizer(
                 examples[field],
                 padding=padding,
@@ -239,9 +238,10 @@ class BertMlM_Model():
         tokenized_datasets = datasets.map(
             tokenize_function,
             batched=True,
-            num_proc=self.data_config.preprocessing_num_workers,
-            load_from_cache_file=False,
-            remove_columns=['qid', 'title', 'desc', 'topic', 'star', 'answer_id', 'answerer_tags']
+            #num_proc=self.data_config.preprocessing_num_workers,
+            num_proc=1,
+            load_from_cache_file=False
+            #remove_columns=['qid', 'title', 'desc', 'topic', 'star', 'answer_id', 'answerer_tags']
             #remove_columns=['news_id', 'keywords', 'desc', 'title', 'source', 'time']
         )        
         return tokenized_datasets           
@@ -287,18 +287,7 @@ def get_configs():
     
     return input_configs                            
     
-# def get_configs():
-    # 
-    # 
-    # config_file ='local_config.json'        
-    # with open(os.path.join(_ROOTDIR_,config_file)) as f:
-        # configs = json.load(f)
-# 
-    # configs['train_config']['output_dir'] = os.path.join(_ROOTDIR_, configs['train_config']['output_dir'])    
-    # 
-    # return {
-        # 'data_config': DataConfig(**configs['data_config']),
-        # 'train_config':TrainConfig(**configs['train_config'])}        
+ 
     
 def local_train():
     model = BertMlM_Model(**get_configs())
