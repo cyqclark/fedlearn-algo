@@ -20,7 +20,7 @@ For client, the configure parameters include mode (training or inference), ip ad
 model token, data path, feature names and model_path, kernel mapping parameters scale and dimension, model save path.
 
 Run **demo_server.py** and **demo_client.py** and set the right configure file, e.g.
-```
+```python
 python ./demos/kernelmethod/demo_client.py -C ./demos/kernelmethod/config/config_train_client1.config
 python ./demos/kernelmethod/demo_client.py -C ./demos/kernelmethod/config/config_train_client2.config
 python ./demos/kernelmethod/demo_client.py -C ./demos/kernelmethod/config/config_train_client3.config
@@ -37,9 +37,14 @@ For server, the configure parameters include server ip, port and token, clientsâ
 For client, the configure parameters include ip, port, token, data path, feature name and model path.
 
 Run **demo_server.py** and **demo_client.py** and set the right configure file, e.g.
-```
+```python
 python ./demos/kernelmethod/demo_client.py -C ./demos/kernelmethod/config/config_inference_client1.config
 python ./demos/kernelmethod/demo_client.py -C ./demos/kernelmethod/config/config_inference_client2.config
 python ./demos/kernelmethod/demo_client.py -C ./demos/kernelmethod/config/config_inference_client3.config
 python demos/kernelmethod/demo_server.py -C ./demos/kernelmethod/config/config_inference_server.config
 ```
+
+## Reference
+[Federated Doubly Stochastic Kernel Learning for Vertically Partitioned Data](https://arxiv.org/pdf/2008.06197.pdf)
+
+[Privacy-Preserving Asynchronous Vertical Federated Learning Algorithms for Multiparty Collaborative Learning](https://ieeexplore.ieee.org/abstract/document/9463409)
