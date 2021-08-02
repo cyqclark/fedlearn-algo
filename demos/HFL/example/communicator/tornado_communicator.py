@@ -29,7 +29,8 @@ import sys
 import threading
 
 root_path = os.getcwd()
-_LOCALHOST = socket.gethostbyname(socket.gethostname())
+#_LOCALHOST = socket.gethostbyname(socket.gethostname())
+_LOCALHOST = socket.gethostname()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(module) s - %(funcName) s - %(lineno) d - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

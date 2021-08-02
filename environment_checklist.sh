@@ -33,7 +33,7 @@ echo "Paillier packages checking finished."
 echo "4. check numpy/scipy related..."
 ## numpy scipy related
 
-python3 -m pip install intel-numpy intel-scipy pandas sklearn
+python3 -m pip install intel-numpy intel-scipy pandas sklearn tensorboard datasets tornado
 
 ## grpc related
 
