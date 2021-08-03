@@ -56,11 +56,13 @@ if 1:
     (train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups()
     print(len(train_texts), len(train_labels))
     print(len(valid_texts), len(valid_labels))
-    if 0:
-        train_texts = train_texts[:80]
-        valid_texts = valid_texts[:80]
-        train_labels = train_labels[:20]
-        valid_labels = valid_texts[:20]
+    if 1:
+        sample_n = 2000
+        valid_sample_n = 500
+        train_texts = train_texts[:sample_n]
+        train_labels = train_labels[:sample_n]
+        valid_texts = valid_texts[:valid_sample_n]
+        valid_labels = valid_labels[:valid_sample_n]
         print(len(train_texts), len(train_labels))
         print(len(valid_texts), len(valid_labels))
     print(target_names)
