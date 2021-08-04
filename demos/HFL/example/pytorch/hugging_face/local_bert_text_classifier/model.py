@@ -63,7 +63,7 @@ if 1:
     print(len(valid_texts), len(valid_labels))
     if 1:
         start=0
-        valid_sample_n = 100
+        valid_sample_n = 1000
         sample_n = valid_sample_n*10
         train_texts = train_texts[start:sample_n]
         train_labels = train_labels[start:sample_n]
@@ -94,7 +94,7 @@ if 1:
 
     # convert our tokenized data into a torch Dataset
     train_dataset = NewsGroupsDataset(train_encodings, train_labels)
-    valid_dataset = NewsGroupsDataset(valid_encodings, valid_labels)
+    eval_dataset = NewsGroupsDataset(valid_encodings, valid_labels)
 
 @dataclass
 class DataConfig():
@@ -168,38 +168,56 @@ class BertTextClassifier():
             model=self.model,                    # the instantiated Transformers model to be trained
             args=self.train_config,              # training arguments, defined above
             train_dataset=train_dataset,         # training dataset
-            eval_dataset=valid_dataset,          # evaluation dataset
+            eval_dataset=eval_dataset,          # evaluation dataset
             compute_metrics=compute_metrics,     # the callback that computes metrics of interest
         )
 
         # train the model
         print('\t>>>train the local model')
-        trainer.train()
+        train_result = trainer.train()
+        trainer.save_model()  # Saves the tokenizer too for easy upload
+        metrics = train_result.metrics
+
+        max_train_samples = self.data_config.max_train_samples \
+                if self.data_config.max_train_samples is not None \
+                else len(train_dataset)
+        metrics["train_samples"] = min(max_train_samples, len(train_dataset))
+        
+        trainer.log_metrics("train", metrics)
+        trainer.save_metrics("train", metrics)
+        trainer.save_state()
+        #num_train_sample = metrics["train_samples"]
 
         # evaluate the current model after training
         print('\t>>>evaluate the local model')
         results = trainer.evaluate()
-        output_eval_file = os.path.join(TrainConfig.output_dir, self.train_day+"_eval_results_text_classifier.txt")
+        max_eval_samples = self.data_config.max_eval_samples if self.data_config.max_eval_samples is not None else len(eval_dataset)
+        metrics["eval_samples"] = min(max_eval_samples, len(eval_dataset))
+        trainer.log_metrics("eval", metrics)
+        trainer.save_metrics("eval", metrics)
+
+        output_eval_file = os.path.join(TrainConfig.output_dir, self.train_day+"_localmodel_results_text_classifier.txt")
         if trainer.is_world_process_zero():
+            for key, value in results.items():
+                    logger.info(f"  {key} = {value}")
+                    metrics[key] = value
             #with open(output_eval_file, "w") as writer:
             with open(output_eval_file, "a+") as writer:
                 logger.info("***** Eval results *****")
-                for key, value in results.items():
+                writer.write(f"***** Eval results *****\n")
+                for key, value in metrics.items():
                     logger.info(f"  {key} = {value}")
                     writer.write(f"{key} = {value}\n")
 
-
-
         # saving the fine tuned model & tokenizer
-        self.model.save_pretrained(model_path)
-        self.tokenizer.save_pretrained(model_path)
+        #self.model.save_pretrained(model_path)
+        #self.tokenizer.save_pretrained(model_path)
 
-        self.train_dataset = train_dataset
-        metrics = {}
-        max_train_samples = self.data_config.max_train_samples \
-                if self.data_config.max_train_samples is not None \
-                else len(self.train_dataset)
-        metrics["train_samples"] = min(max_train_samples, len(self.train_dataset))
+        #return_matrics ={
+        #    'eval_loss':metrics["eval_loss"],
+        #    #'perplexity':metrics['perplexity'],
+        #    'train_samples':num_train_sample 
+        #}
 
         print('\t>>>one iteration done!!!')
         return self.get_model_parameters(), metrics
@@ -230,7 +248,7 @@ def train():
         model=model,                         # the instantiated Transformers model to be trained
         args=TrainConfig,                    # training arguments, defined above
         train_dataset=train_dataset,         # training dataset
-        eval_dataset=valid_dataset,          # evaluation dataset
+        eval_dataset=eval_dataset,          # evaluation dataset
         compute_metrics=compute_metrics,     # the callback that computes metrics of interest
     )
 
