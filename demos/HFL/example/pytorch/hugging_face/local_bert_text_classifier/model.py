@@ -64,7 +64,7 @@ if 1:
     if 1:
         start=0
         valid_sample_n = 1000
-        sample_n = valid_sample_n*10
+        sample_n = valid_sample_n*5
         train_texts = train_texts[start:sample_n]
         train_labels = train_labels[start:sample_n]
         valid_texts = valid_texts[start:valid_sample_n]
@@ -177,6 +177,10 @@ class BertTextClassifier():
         train_result = trainer.train()
         trainer.save_model()  # Saves the tokenizer too for easy upload
         metrics = train_result.metrics
+        logger.info(train_result)
+        metrics['training_loss'] = train_result.training_loss
+        metrics['global_step'] = train_result.global_step
+        #logger.info(metrics)
 
         max_train_samples = self.data_config.max_train_samples \
                 if self.data_config.max_train_samples is not None \
@@ -199,12 +203,11 @@ class BertTextClassifier():
         output_eval_file = os.path.join(TrainConfig.output_dir, self.train_day+"_localmodel_results_text_classifier.txt")
         if trainer.is_world_process_zero():
             for key, value in results.items():
-                    logger.info(f"  {key} = {value}")
                     metrics[key] = value
             #with open(output_eval_file, "w") as writer:
             with open(output_eval_file, "a+") as writer:
-                logger.info("***** Eval results *****")
-                writer.write(f"***** Eval results *****\n")
+                logger.info("***** Metrics results *****")
+                writer.write(f"*****results *****\n")
                 for key, value in metrics.items():
                     logger.info(f"  {key} = {value}")
                     writer.write(f"{key} = {value}\n")
@@ -212,12 +215,6 @@ class BertTextClassifier():
         # saving the fine tuned model & tokenizer
         #self.model.save_pretrained(model_path)
         #self.tokenizer.save_pretrained(model_path)
-
-        #return_matrics ={
-        #    'eval_loss':metrics["eval_loss"],
-        #    #'perplexity':metrics['perplexity'],
-        #    'train_samples':num_train_sample 
-        #}
 
         print('\t>>>one iteration done!!!')
         return self.get_model_parameters(), metrics

@@ -61,7 +61,7 @@ def get_train_args():
             line_by_line=True
         )
         train_config = TrainConfig(
-            output_dir=f'{BERT_ROOT}/saved_tiny_models',
+            output_dir=f'{BERT_ROOT}/saved_text_classifier_models',
             do_train=True,
             do_eval=True,
             report_to='tensorboard',
