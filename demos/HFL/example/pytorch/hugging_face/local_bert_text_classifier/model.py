@@ -28,10 +28,9 @@ if 1:
         random.seed(seed)
         np.random.seed(seed)
         if is_torch_available():
-            print('is pytorch...')
+            print('using pytorch...')
             torch.manual_seed(seed)
             torch.cuda.manual_seed_all(seed)
-            # ^^ safe to call this function even if cuda is not available
 
     set_seed(1)
 
@@ -57,8 +56,8 @@ if 1:
     print(len(train_texts), len(train_labels))
     print(len(valid_texts), len(valid_labels))
     if 1:
-        sample_n = 2000
-        valid_sample_n = 500
+        sample_n = 1000
+        valid_sample_n = 200
         train_texts = train_texts[:sample_n]
         train_labels = train_labels[:sample_n]
         valid_texts = valid_texts[:valid_sample_n]
@@ -161,9 +160,11 @@ class BertTextClassifier():
 
         # train the model
         trainer.train()
+        print('\t>>>train the local model')
 
         # evaluate the current model after training
         trainer.evaluate()
+        print('\t>>>evaluate the local model')
 
         # saving the fine tuned model & tokenizer
         self.model.save_pretrained(model_path)
@@ -176,18 +177,19 @@ class BertTextClassifier():
                 else len(self.train_dataset)
         metrics["train_samples"] = min(max_train_samples, len(self.train_dataset))
 
+        print('\t>>>one iteration done!!!')
         return self.get_model_parameters(), metrics
 
     def set_model_parameters(self, 
                                 params:Dict[str,np.ndarray],
                                 mode='train'):
-            if mode =='train':
-                self.model.train()
-            else:
-                self.model.eval()
+        if mode =='train':
+            self.model.train()
+        else:
+            self.model.eval()
                      
-            state_dict = OrderedDict({k: torch.Tensor(v) for k, v in params.items()})
-            self.model.load_state_dict(state_dict, strict=False)
+        state_dict = OrderedDict({k: torch.Tensor(v) for k, v in params.items()})
+        self.model.load_state_dict(state_dict, strict=False)
 
     def get_model_parameters(self)->Dict[str,np.ndarray]:
         return {
@@ -213,6 +215,7 @@ def train():
 
     # evaluate the current model after training
     trainer.evaluate()
+    print('\t>>>evaluate the local model')
 
     # saving the fine tuned model & tokenizer
     model.save_pretrained(model_path)
