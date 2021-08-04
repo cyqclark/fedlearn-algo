@@ -59,10 +59,10 @@ from demos.HFL.client.client_com_manager_base import (
     ClientMode
 )
 
-_NUM_ROUNDS_= 2 #10
+_NUM_ROUNDS_= 3 #10
 class AlgoArch():
    SYNC = 'sync'
-   ASYNC = 'aync'
+   ASYNC = 'async'
 
 class Server(Msg_Handler):
     """
@@ -96,6 +96,9 @@ class Server(Msg_Handler):
     MODE_ACTIVE='active'
     MODE_PASSIVE='passive'
     
+    CSTATUS_INIT = 'INIT' 
+    CSTATUS_LOCALREADY = 'LOCALREADY'
+    CSTATUS_GLOBALREADY = 'GLOBALREADY'
 
     def __init__(self, 
                  port:int=8890, 
@@ -341,7 +344,7 @@ class Server(Msg_Handler):
                 #trainRes = c_proxy.train(args)
                 trainRes = c_proxy.train(TrainArgs(params, config))
                 #trainRes = self.dummy_test(client_id, rd)
-                #logger.info(f'client{client_id}: num_samples={trainRes.num_samples}')
+                logger.info(f'!!!>>>>>>>> client#{client_id} train done, in local #{rd} epoch, global {self._p} epoch')
                 self.modelDB[client_id]['local'] = trainRes#.params
                 self.numSamples[client_id] = trainRes.num_samples
                 self.client_status[client_id] = Server.CSTATUS_LOCALREADY
@@ -353,8 +356,6 @@ class Server(Msg_Handler):
                 #self.aggr_event.notify()
                 self.train_events[client_id].notify()
                 #logger.info(f'client#{client_id} notify- aggr {self.aggr_event}, {self.train_events}, in local #{rd} epoch, global {self._p} epoch')
-   
-
     
     def train(self, num_rounds=3):
         """
@@ -369,9 +370,12 @@ class Server(Msg_Handler):
         """
         params, configs = self.init_globel_model()
 
+        logger.info('\t========== START TRAINING ===========')
+        logger.info(f'aggregation_type {self.aggregation_type}')
+        logger.info(f'AlgoArch.ASYNC {AlgoArch.ASYNC}')
         if self.aggregation_type == AlgoArch.ASYNC:
             #logger.info(f'{self.client_proxy_managers}')
-            logger.info('== START async TRAINING  ==')
+            logger.info('== START Async TRAINING  ==')
             threads = []
             #threads.append(Thread(target=self.aggr_thread, args=(num_rounds,)))
             #threads[-1].start()
@@ -394,6 +398,7 @@ class Server(Msg_Handler):
                 """
                 thread.join()
         else:
+            logger.info('== START Sync TRAINING  ==')
             for rd in range(num_rounds):
                 #TODO
                 # Adding failure tolerence to allows aggregation on fewer returns of clients instead of every participanted clients.
