@@ -1,9 +1,10 @@
 import argparse
 from dataclasses import dataclass, field
 import os
+import datetime
 from typing import Optional, Union,Dict,List,Any
 from collections import OrderedDict
-
+import logging
 import torch
 import transformers
 #from transformers.file_utils import is_tf_available, is_torch_available, is_torch_tpu_available
@@ -15,7 +16,12 @@ import random
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.model_selection import train_test_split
 
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 model_path = "20newsgroups-bert-base-uncased"
+logger = logging.getLogger(__name__)
+# Log on each process the small summary:
+transformers.utils.logging.set_verbosity_info()
+
 if 1:
     def set_seed(seed: int):
         """
@@ -56,12 +62,13 @@ if 1:
     print(len(train_texts), len(train_labels))
     print(len(valid_texts), len(valid_labels))
     if 1:
-        sample_n = 1000
-        valid_sample_n = 200
-        train_texts = train_texts[:sample_n]
-        train_labels = train_labels[:sample_n]
-        valid_texts = valid_texts[:valid_sample_n]
-        valid_labels = valid_labels[:valid_sample_n]
+        start=0
+        valid_sample_n = 100
+        sample_n = valid_sample_n*10
+        train_texts = train_texts[start:sample_n]
+        train_labels = train_labels[start:sample_n]
+        valid_texts = valid_texts[start:valid_sample_n]
+        valid_labels = valid_labels[start:valid_sample_n]
         print(len(train_texts), len(train_labels))
         print(len(valid_texts), len(valid_labels))
     print(target_names)
@@ -103,8 +110,8 @@ class DataConfig():
 
 TrainConfig = TrainingArguments(
         output_dir='./results',          # output directory
-        num_train_epochs=3,              # total number of training epochs
-        #num_train_epochs=10,              # total number of training epochs
+        #num_train_epochs=3,              # total number of training epochs
+        num_train_epochs=10,              # total number of training epochs
         per_device_train_batch_size=16,  # batch size per device during training
         per_device_eval_batch_size=20,   # batch size for evaluation
         warmup_steps=500,                # number of warmup steps for learning rate scheduler
@@ -112,19 +119,23 @@ TrainConfig = TrainingArguments(
         logging_dir='./logs',            # directory for storing logs
         #load_best_model_at_end=True,     # load the best model when finished training (default metric is loss)
         # but you can specify `metric_for_best_model` argument to change to accuracy or other metric
-        logging_steps=200,               # log & save weights each logging_steps
-        #evaluation_strategy="steps"      # evaluate each `logging_steps`
+        logging_steps=50,               # log & save weights each logging_steps
+        #evaluation_strategy="steps",      # evaluate each `logging_steps`
+        evaluation_strategy="epoch",      # evaluate each `logging_steps`
+        #logging_strategy="steps",
     )
 
 
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 def compute_metrics(pred):
-      labels = pred.label_ids
-      preds = pred.predictions.argmax(-1)
+      true_labels = pred.label_ids
+      true_predictions = pred.predictions.argmax(-1)
       # calculate accuracy using sklearn's function
-      acc = accuracy_score(labels, preds)
       return {
-          'accuracy': acc,
+            "accuracy_score": accuracy_score(true_labels, true_predictions),
+            #"precision": precision_score(true_labels, true_predictions),
+            #"recall": recall_score(true_labels, true_predictions),
+            #"f1": f1_score(true_labels, true_predictions),
       }
 
 class BertTextClassifier():
@@ -136,6 +147,9 @@ class BertTextClassifier():
 
         self.data_config = data_config
         self.train_config =  train_config
+        now = datetime.datetime.now()
+        #self.train_day = now.strftime("%m/%d/%Y%H%M%S")
+        self.train_day = now.strftime("%Y%m%d")
 
         self.train_config.output_dir = os.path.join(
               self.train_config.output_dir,
@@ -143,7 +157,7 @@ class BertTextClassifier():
         )
 
         # load the model and pass to CUDA
-        self.model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names)).to("cuda")
+        self.model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names)).to(device)
         # load the tokenizer
         self.tokenizer = transformers.BertTokenizerFast.from_pretrained(model_name, do_lower_case=True)
 
@@ -151,20 +165,30 @@ class BertTextClassifier():
         print('\t========BertTextClassifier=========', )
 
         trainer = Trainer(
-            model=self.model,                         # the instantiated Transformers model to be trained
-            args=self.train_config,                  # training arguments, defined above
+            model=self.model,                    # the instantiated Transformers model to be trained
+            args=self.train_config,              # training arguments, defined above
             train_dataset=train_dataset,         # training dataset
             eval_dataset=valid_dataset,          # evaluation dataset
             compute_metrics=compute_metrics,     # the callback that computes metrics of interest
         )
 
         # train the model
-        trainer.train()
         print('\t>>>train the local model')
+        trainer.train()
 
         # evaluate the current model after training
-        trainer.evaluate()
         print('\t>>>evaluate the local model')
+        results = trainer.evaluate()
+        output_eval_file = os.path.join(TrainConfig.output_dir, self.train_day+"_eval_results_text_classifier.txt")
+        if trainer.is_world_process_zero():
+            #with open(output_eval_file, "w") as writer:
+            with open(output_eval_file, "a+") as writer:
+                logger.info("***** Eval results *****")
+                for key, value in results.items():
+                    logger.info(f"  {key} = {value}")
+                    writer.write(f"{key} = {value}\n")
+
+
 
         # saving the fine tuned model & tokenizer
         self.model.save_pretrained(model_path)
@@ -200,7 +224,7 @@ class BertTextClassifier():
 
 def train():
     # load the model and pass to CUDA
-    model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names)).to("cuda")
+    model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names)).to(device)
 
     trainer = Trainer(
         model=model,                         # the instantiated Transformers model to be trained
@@ -223,12 +247,12 @@ def train():
 
 def test():
     # reload our model/tokenizer. Optional, only usable when in Python files instead of notebooks
-    model = BertForSequenceClassification.from_pretrained(model_path, num_labels=len(target_names)).to("cuda")
+    model = BertForSequenceClassification.from_pretrained(model_path, num_labels=len(target_names)).to(device)
     tokenizer = BertTokenizerFast.from_pretrained(model_path)
 
     def get_prediction(text):
         # prepare our text into tokenized sequence
-        inputs = tokenizer(text, padding=True, truncation=True, max_length=max_length, return_tensors="pt").to("cuda")
+        inputs = tokenizer(text, padding=True, truncation=True, max_length=max_length, return_tensors="pt").to(device)
         # perform inference to our model
         outputs = model(**inputs)
         # get output probabilities by doing softmax
