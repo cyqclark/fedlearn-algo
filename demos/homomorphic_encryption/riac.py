@@ -72,7 +72,7 @@ def demo_add():
     plaintext1 = random.randint(-1e6, 1e6) # get a random plaintext in int
     ciphertext1 = key.encrypt(plaintext1) # encryption
     
-    plaintext2 = 1e6 * (random.random() - 0.5) # get a random plaintext in int
+    plaintext2 = 1e6 * (random.random() - 0.5) # get a random plaintext in float
     ciphertext2 = key.encrypt(plaintext2) # encryption
 
     decrypted = key.decrypt(ciphertext1 + ciphertext2) # addition and decryption
@@ -84,10 +84,10 @@ def demo_add():
     # sum of two floats
     print("\nAddition of two floats: ")
     
-    plaintext1 = 1e6 * (random.random() - 0.5) # get a random plaintext in int
+    plaintext1 = 1e6 * (random.random() - 0.5) # get a random plaintext in float
     ciphertext1 = key.encrypt(plaintext1) # encryption
     
-    plaintext2 = 1e6 * (random.random() - 0.5) # get a random plaintext in int
+    plaintext2 = 1e6 * (random.random() - 0.5) # get a random plaintext in float
     ciphertext2 = key.encrypt(plaintext2) # encryption
 
     decrypted = key.decrypt(ciphertext1 + ciphertext2) # addition and decryption
@@ -97,9 +97,25 @@ def demo_add():
     return None
 
 def demo_scalar_multiplication():
+    """
+    In this demo function we show how to use RIAC in scalar multiplication
+    """
+    key = RIAC.generate_keypair() # get encryption key
+
+    print("\n============================Scalar Multiplication Demo==================================")
+    
+    plaintext1 = random.randint(-1e6, 1e6) # get a random plaintext in int
+    ciphertext1 = key.encrypt(plaintext1) # encryption
+    
+    m = 1e6 * (random.random() - 0.5) # get a random plaintext in float
+
+    decrypted = key.decrypt(ciphertext1 * m) # scalar multiplication and decryption
+    print("Plaintext: %i * %.6f = %.6f; decrypted ciphertext: %.6f; diff=%.6f"%(
+        plaintext1, m, plaintext1 * m, decrypted, plaintext1 * m - decrypted))
     return None
 
 
 if __name__ == "__main__":
     demo_encrypt_decrypt()
     demo_add()
+    demo_scalar_multiplication()
