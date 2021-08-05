@@ -55,8 +55,8 @@ def get_train_args():
             train_file=train_data_file,
             val_file=train_data_file,
             mlm_probability=0.15,
-            max_train_samples=4500,
-            max_eval_samples=1000,
+            max_train_samples=50000, #4500,
+            max_eval_samples=5000, #1000,
             pad_to_max_length=True,
             line_by_line=True
         )
@@ -66,10 +66,19 @@ def get_train_args():
             do_eval=True,
             report_to='tensorboard',
             logging_dir=f'{BERT_ROOT}/log',
-            evaluation_strategy="steps",
-            num_train_epochs=1,
+            #num_train_epochs=1,
+            num_train_epochs=10,
             eval_steps=1000,
-            per_device_train_batch_size=6)
+            #per_device_train_batch_size=6
+            per_device_train_batch_size=10,
+            per_device_eval_batch_size=20,   # batch size for evaluation
+            warmup_steps=500,                # number of warmup steps for learning rate scheduler
+            weight_decay=0.01,               # strength of weight decay
+            logging_steps=500,               # log & save weights each logging_steps
+            logging_strategy="steps",
+            #evaluation_strategy="steps",      # evaluate each `logging_steps`
+            evaluation_strategy="epoch",      # evaluate each `logging_steps`
+        )
             
         return data_config, train_config,     
 
