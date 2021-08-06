@@ -59,7 +59,7 @@ from demos.HFL.client.client_com_manager_base import (
     ClientMode
 )
 
-_NUM_ROUNDS_= 3 #10
+_NUM_ROUNDS_= 10 #10
 class AlgoArch():
    SYNC = 'sync'
    ASYNC = 'async'
