@@ -5,6 +5,21 @@ import pandas as pd
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.model_selection import train_test_split
 
+is_visual = True
+
+def visulize_distribution(df):
+    if 1:
+        print(df.target.value_counts())
+        #df.target.value_counts()
+    else:
+        import matplotlib.pyplot as plt
+        print('++')
+        df['target'].plot.hist(width=0.1, )
+        #plt.hist(column='target')
+        #plt.hist(out['target'])
+        print('--')
+        plt.show()
+
 def read_20newsgroups(test_size=0.2):
       # download & load 20newsgroups dataset from sklearn's repos
       dataset = fetch_20newsgroups(subset="all", shuffle=True, remove=("headers", "footers", "quotes"))
@@ -17,6 +32,8 @@ def twenty_newsgroup_to_csv():
     #newsgroups_train = fetch_20newsgroups(subset='train', remove=('headers', 'footers', 'quotes'))
     #newsgroups = fetch_20newsgroups(subset="all", shuffle=True, remove=("headers", "footers", "quotes"))
     newsgroups = fetch_20newsgroups(subset="all", remove=("headers", "footers", "quotes"))
+    #newsgroups = fetch_20newsgroups(subset="train", remove=("headers", "footers", "quotes"))
+    #newsgroups = fetch_20newsgroups(subset="test", remove=("headers", "footers", "quotes"))
 
     df = pd.DataFrame([newsgroups.data, newsgroups.target.tolist()]).T
     df.columns = ['text', 'target']
@@ -25,9 +42,12 @@ def twenty_newsgroup_to_csv():
     targets.columns=['title']
 
     out = pd.merge(df, targets, left_on='target', right_index=True)
-    print(out.shape)
+    print(out.shape, out.columns)
+    #out.describe(include=['target'])
     #out.to_csv('20_newsgroup.csv')
-    out.groupby('target').count().plot.bar()
+    #out.groupby('target').count().plot.bar()
+    if is_visual:
+        visulize_distribution(out)
     return out
 
 def iid_20newsgroups(dataset, num_users):
@@ -48,6 +68,9 @@ def iid_20newsgroups(dataset, num_users):
         all_idxs = list(set(all_idxs) - set(chosen_idxs))
         #print({x for i, x in enumerate(dict_users[i]) if i < 5})
         print(dict_users[i].head(), dict_users[i].shape)
+
+        if is_visual:
+            visulize_distribution(dict_users[i])
     #print(dict_users.keys())
     return dict_users
 
