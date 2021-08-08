@@ -25,6 +25,9 @@ from core.encrypt.he import RandomizedIterativeAffine as RIAC
 
 import unittest   # The test framework
 
+_ASSERT_DECIMAL = 1e-6
+_RELL_ERROR = 1e-6
+
 class TestRIAC(unittest.TestCase):
     
     def __init__(self, *args, **kwargs):
@@ -68,6 +71,24 @@ class TestRIAC(unittest.TestCase):
         ciphertext = self.encrypt_key.encrypt(plaintext)
         self.assertEqual(self.encrypt_key.decrypt(n * ciphertext), n * plaintext)
 
+    def test_mult_add(self):
+        plaintext1 = 1e4 * (random.random() - 0.5)
+        plaintext2 = 1e4 * (random.random() - 0.5)
+        n1 = random.randint(-1e6, 1e6)
+        n2 = random.randint(-1e6, 1e6)
+        ciphertext1 = self.encrypt_key.encrypt(plaintext1)
+        ciphertext2 = self.encrypt_key.encrypt(plaintext2)
+        decrypted = self.encrypt_key.decrypt(ciphertext1 * n1 * n2 + ciphertext2)
+        result = plaintext1 * n1 * n2 + plaintext2
+        if abs(decrypted - result) > _ASSERT_DECIMAL:
+            if abs(decrypted/result - 1) < _RELL_ERROR:
+                print("WARNING in test_mult_add")
+                print("Abs diff %.8f is larger than %.8f,"%(abs(decrypted - result), _ASSERT_DECIMAL))
+                print("but rel diff %.8f is smaller than %.8f"%(abs(decrypted/result - 1), _RELL_ERROR))
+            else:
+                self.assertAlmostEqual(decrypted, result, _ASSERT_DECIMAL, "Assert almost equal failed!")
+        return None
+
     def test_mean_int(self):
         n = 1000
         plaintexts = numpy.random.randint(-1e6, 1e6, n)
@@ -90,6 +111,8 @@ class TestRIAC(unittest.TestCase):
                                plaintexts_mean,
                                delta=1e-6)
         return None
+
+    
 
 
 if __name__ == '__main__':

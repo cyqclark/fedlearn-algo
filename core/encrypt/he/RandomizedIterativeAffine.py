@@ -16,6 +16,9 @@ Randomized Iterative Affine Cipher
 The main code is partially grabbed from:
 https://github.com/lyyanjiu1jia1/RandomizedIterativeAffineCipher
 but with some optimizations.
+
+# TODO:
+# add capacity check.
 """
 
 import math
@@ -125,10 +128,11 @@ class IterativeAffineCiphertext(object):
                 raise TypeError("Two addends must have equal multiples and n_finals")
             if self.mult_times > other.mult_times:
                 mult_times_diff = self.mult_times - other.mult_times
-                cipher1 = util.t_mod(util.add(self.cipher1,util.mul(util.mul(
-                    other.cipher1, other.multiple), mult_times_diff)), self.n_final)
-                cipher2 = util.t_mod(util.add(self.cipher2, util.mul(util.mul(
-                    other.cipher2, other.multiple), mult_times_diff)), self.n_final)
+                multiplier = util.powmod(self.multiple, mult_times_diff, self.n_final)
+                cipher1 = util.t_mod(util.add(self.cipher1, util.mul(other.cipher1,
+                    multiplier)), self.n_final)
+                cipher2 = util.t_mod(util.add(self.cipher2, util.mul(other.cipher2,
+                    multiplier)), self.n_final)
                 return IterativeAffineCiphertext(
                     cipher1=cipher1,
                     cipher2=cipher2,
@@ -138,10 +142,11 @@ class IterativeAffineCiphertext(object):
                 )
             elif self.mult_times < other.mult_times:
                 mult_times_diff = other.mult_times - self.mult_times
-                cipher1 = util.t_mod(util.add(util.mul(util.mul(self.cipher1,
-                    self.multiple), mult_times_diff), other.cipher1), self.n_final)
-                cipher2 = util.t_mod(util.add(util.mul(util.mul(self.cipher2,
-                    self.multiple), mult_times_diff), other.cipher2), self.n_final)
+                multiplier = util.powmod(self.multiple, mult_times_diff, self.n_final)
+                cipher1 = util.t_mod(util.add(util.mul(self.cipher1, multiplier),
+                    other.cipher1), self.n_final)
+                cipher2 = util.t_mod(util.add(util.mul(self.cipher2, multiplier),
+                    other.cipher2), self.n_final)
                 return IterativeAffineCiphertext(
                     cipher1=cipher1,
                     cipher2=cipher2,
