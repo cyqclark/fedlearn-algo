@@ -13,15 +13,19 @@ from transformers import BertTokenizerFast, BertForSequenceClassification
 from transformers import Trainer, TrainingArguments
 import numpy as np
 import random
-from sklearn.datasets import fetch_20newsgroups
-from sklearn.model_selection import train_test_split
+
+from demos.HFL.example.pytorch.hugging_face.local_bert_text_classifier.dataset import read_20newsgroups
 
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-model_path = "20newsgroups-bert-base-uncased"
 logger = logging.getLogger(__name__)
-# Log on each process the small summary:
 transformers.utils.logging.set_verbosity_info()
 
+model_path = "20newsgroups-bert-base-uncased"
+# Log on each process the small summary:
+
+data_file = 'iid_20newsgroups_0.csv'
+data_file = 'iid_20newsgroups_1.csv'
+#data_file = None
 if 1:
     def set_seed(seed: int):
         """
@@ -40,30 +44,14 @@ if 1:
 
     set_seed(1)
 
-    # the model we gonna train, base uncased BERT
-    # check text classification models here: https://huggingface.co/models?filter=text-classification
-    model_name = "bert-base-uncased"
-    # max sequence length for each document/sentence sample
-    max_length = 512
-
-    # load the tokenizer
-    tokenizer = transformers.BertTokenizerFast.from_pretrained(model_name, do_lower_case=True)
-
-    def read_20newsgroups(test_size=0.2):
-      # download & load 20newsgroups dataset from sklearn's repos
-      dataset = fetch_20newsgroups(subset="all", shuffle=True, remove=("headers", "footers", "quotes"))
-      documents = dataset.data
-      labels = dataset.target
-      # split into training & testing a return data as well as label names
-      return train_test_split(documents, labels, test_size=test_size), dataset.target_names
-
-    # call the function
-    (train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups()
-    print(len(train_texts), len(train_labels))
-    print(len(valid_texts), len(valid_labels))
-    if 1:
+    (train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups(data_file=data_file)
+    print('\t==========dataset===========')
+    print('\ttrain samples: ', len(train_texts), type(train_texts))
+    print('\tvalid samples: ',len(valid_texts), type(valid_texts))
+    print('>>', train_texts[0])
+    if 0:
         start=0
-        valid_sample_n = 1000
+        valid_sample_n = 200
         sample_n = valid_sample_n*5
         train_texts = train_texts[start:sample_n]
         train_labels = train_labels[start:sample_n]
@@ -71,13 +59,22 @@ if 1:
         valid_labels = valid_labels[start:valid_sample_n]
         print(len(train_texts), len(train_labels))
         print(len(valid_texts), len(valid_labels))
-    print(target_names)
+        print(target_names)
 
+    # the model we gonna train, base uncased BERT
+    # check text classification models here: https://huggingface.co/models?filter=text-classification
+    model_name = "bert-base-uncased"
+    # load the tokenizer
+    tokenizer = transformers.BertTokenizerFast.from_pretrained(model_name, do_lower_case=True)
+
+    # max sequence length for each document/sentence sample
+    max_length = 512
     # tokenize the dataset, truncate when passed `max_length`,
     # and pad with 0's when less than `max_length`
+    #train_encodings = tokenizer(train_texts, truncation=True, padding=True, max_length=max_length, is_split_into_words=True)
+    #valid_encodings = tokenizer(valid_texts, truncation=True, padding=True, max_length=max_length, is_split_into_words=True)
     train_encodings = tokenizer(train_texts, truncation=True, padding=True, max_length=max_length)
     valid_encodings = tokenizer(valid_texts, truncation=True, padding=True, max_length=max_length)
-
 
     class NewsGroupsDataset(torch.utils.data.Dataset):
         def __init__(self, encodings, labels):
@@ -108,24 +105,6 @@ class DataConfig():
     preprocessing_num_workers:int = 8
     max_seq_length:int = 256
 
-TrainConfig = TrainingArguments(
-        output_dir='./results',          # output directory
-        #num_train_epochs=3,              # total number of training epochs
-        num_train_epochs=10,              # total number of training epochs
-        per_device_train_batch_size=16,  # batch size per device during training
-        per_device_eval_batch_size=20,   # batch size for evaluation
-        warmup_steps=500,                # number of warmup steps for learning rate scheduler
-        weight_decay=0.01,               # strength of weight decay
-        logging_dir='./logs',            # directory for storing logs
-        #load_best_model_at_end=True,     # load the best model when finished training (default metric is loss)
-        # but you can specify `metric_for_best_model` argument to change to accuracy or other metric
-        logging_steps=50,               # log & save weights each logging_steps
-        #evaluation_strategy="steps",      # evaluate each `logging_steps`
-        evaluation_strategy="epoch",      # evaluate each `logging_steps`
-        #logging_strategy="steps",
-    )
-
-
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 def compute_metrics(pred):
       true_labels = pred.label_ids
@@ -141,7 +120,7 @@ def compute_metrics(pred):
 class BertTextClassifier():
     def __init__(self,
                  data_config:DataConfig,
-                 train_config:TrainConfig,
+                 train_config:TrainingArguments,
                  pretrained_model_name='bert-base-chinese',
                  init_from_local_pretrained=False):
 
@@ -200,7 +179,7 @@ class BertTextClassifier():
         trainer.log_metrics("eval", metrics)
         trainer.save_metrics("eval", metrics)
 
-        output_eval_file = os.path.join(TrainConfig.output_dir, self.train_day+"_localmodel_results_text_classifier.txt")
+        output_eval_file = os.path.join(self.train_config.output_dir, self.train_day+"_localmodel_results_text_classifier.txt")
         if trainer.is_world_process_zero():
             for key, value in results.items():
                     metrics[key] = value
@@ -238,6 +217,23 @@ class BertTextClassifier():
             }
 
 def train():
+    TrainConfig = TrainingArguments(
+        output_dir='./results',          # output directory
+        #num_train_epochs=3,              # total number of training epochs
+        num_train_epochs=10,              # total number of training epochs
+        per_device_train_batch_size=10,  # batch size per device during training
+        per_device_eval_batch_size=20,   # batch size for evaluation
+        warmup_steps=500,                # number of warmup steps for learning rate scheduler
+        weight_decay=0.01,               # strength of weight decay
+        logging_dir='./logs',            # directory for storing logs
+        #load_best_model_at_end=True,     # load the best model when finished training (default metric is loss)
+        # but you can specify `metric_for_best_model` argument to change to accuracy or other metric
+        logging_steps=50,               # log & save weights each logging_steps
+        #evaluation_strategy="steps",      # evaluate each `logging_steps`
+        evaluation_strategy="epoch",      # evaluate each `logging_steps`
+        #logging_strategy="steps",
+    )
+
     # load the model and pass to CUDA
     model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(target_names)).to(device)
 
