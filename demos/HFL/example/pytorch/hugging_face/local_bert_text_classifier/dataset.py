@@ -130,28 +130,27 @@ def noniid_label_20newsgroups(dataset, num_users, alpha=None):
     idxs = idxs_labels[0, :]
     print(idxs, len(idxs)) 
 
-    #tbd
-    # 18,000 training texts -->  60 texts/shard X 300 shards
-    num_shards, num_imgs = 60, 300
-    idx_shard = [i for i in range(num_shards)]
-    dict_users = {i: np.array([]) for i in range(num_users)}
-    idxs = np.arange(num_shards*num_imgs)
-    #labels = dataset.train_labels.numpy()
-    labels = np.array(dataset['target'])
-
-    # sort labels
-    idxs_labels = np.vstack((idxs, labels))
-    idxs_labels = idxs_labels[:, idxs_labels[1, :].argsort()]
-    idxs = idxs_labels[0, :]
-
-    # divide and assign 2 shards/client
+    chosen_idxs = {i:[] for i in range(num_users)}
+    #for i in range(18000,len(idxs)):
+    #for i in range(100):
+    for i in range(len(idxs)): #only two users
+        user_id = idxs_labels[1][i] % 2
+        if user_id == 0:
+            #print(i, idxs_labels[0][i], idxs_labels[1][i])
+            chosen_idxs[user_id].append(idxs_labels[0][i])
+        else:
+            chosen_idxs[user_id].append(idxs_labels[0][i])
     for i in range(num_users):
-        rand_set = set(np.random.choice(idx_shard, 2, replace=False))
-        idx_shard = list(set(idx_shard) - rand_set)
-        for rand in rand_set:
-            dict_users[i] = np.concatenate(
-                (dict_users[i], idxs[rand*num_imgs:(rand+1)*num_imgs]), axis=0)
-    return dict_users
+        dict_users[i] = dataset.iloc[chosen_idxs[i]]
+        #all_idxs = list(set(all_idxs) - set(chosen_idxs))
+        #print({x for i, x in enumerate(dict_users[i]) if i < 5})
+        if is_visual:
+            print(dict_users[i].head(), dict_users[i].shape)
+            visulize_distribution(dict_users[i])
+
+        if is_to_csv:
+            dict_users[i].to_csv('noniid_label_20newsgroups_alpha'+ str(alpha)+ '_'+str(i)+'.csv', index=False)
+
     return dict_users
 
 def noniid_quantity_20newsgroups(dataset, num_users=2, beta=None):
@@ -222,6 +221,6 @@ if __name__ == '__main__':
         #print(dataset.head(10))
         #dataset = fetch_20newsgroups(subset="all", shuffle=True, remove=("headers", "footers", "quotes"))
         #dict_user = noniid_20newsgroups(dataset, 2)
-        #noniid_label_20newsgroups(dataset, 2, alpha=0.5)
+        noniid_label_20newsgroups(dataset, 2, alpha=0.5)
         num_users = 2
-        noniid_quantity_20newsgroups(dataset, beta=[0.1, 0.9])
+        #noniid_quantity_20newsgroups(dataset, beta=[0.1, 0.9])
