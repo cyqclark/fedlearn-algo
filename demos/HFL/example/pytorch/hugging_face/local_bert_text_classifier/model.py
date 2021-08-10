@@ -26,9 +26,9 @@ model_path = "20newsgroups-bert-base-uncased"
 data_file = 'iid_20newsgroups_0.csv'
 data_file = 'iid_20newsgroups_1.csv'
 data_file = 'noniid_quantity_20newsgroups_beta0.1_0.csv'
-data_file = 'noniid_quantity_20newsgroups_beta0.9_1.csv'
-data_file = 'noniid_label_20newsgroups_alpha0.5_0.csv'
-#data_file = 'noniid_label_20newsgroups_alpha0.5_1.csv'
+#data_file = 'noniid_quantity_20newsgroups_beta0.9_1.csv'
+#data_file = 'noniid_label_20newsgroups_alpha0.5_0.csv'
+data_file = 'noniid_label_20newsgroups_alpha0.5_1.csv'
 test_file = 'test_20newsgroups.csv'
 
 #data_file = None

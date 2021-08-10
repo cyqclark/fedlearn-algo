@@ -23,7 +23,7 @@ def visulize_distribution(df):
 def read_20newsgroups(data_file=None, test_file=None, dataset=None, test_size=0.2):
     if test_file is not None:
         testset = pd.read_csv(test_file)
-        testset.dropna()
+        testset = testset.dropna()
         if is_visual:
             visulize_distribution(testset)
         valid_texts = list(testset['text'])
@@ -31,10 +31,10 @@ def read_20newsgroups(data_file=None, test_file=None, dataset=None, test_size=0.
         classifier_types = list(testset['title'].unique())
 
         dataset = pd.read_csv(data_file)
-        dataset.dropna()
+        dataset = dataset.dropna()
         train_texts = list(dataset['text'])
         train_labels = np.array(dataset['target'])
-        classifier_types = list(testset['title'].unique())
+        classifier_types = list(dataset['title'].unique())
         if is_visual:
             visulize_distribution(dataset)
 
@@ -48,7 +48,6 @@ def read_20newsgroups(data_file=None, test_file=None, dataset=None, test_size=0.
             #print(dataset.shape)
         
         if dataset is not None: 
-            #print(dataset.head(1))
             #print(dataset.shape)
             #print(dataset.columns)
             documents = list(dataset['text'])
