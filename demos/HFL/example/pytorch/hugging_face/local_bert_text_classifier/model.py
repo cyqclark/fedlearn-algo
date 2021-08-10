@@ -28,7 +28,8 @@ data_file = 'iid_20newsgroups_1.csv'
 data_file = 'noniid_quantity_20newsgroups_beta0.1_0.csv'
 data_file = 'noniid_quantity_20newsgroups_beta0.9_1.csv'
 data_file = 'noniid_label_20newsgroups_alpha0.5_0.csv'
-data_file = 'noniid_label_20newsgroups_alpha0.5_1.csv'
+#data_file = 'noniid_label_20newsgroups_alpha0.5_1.csv'
+test_file = 'test_20newsgroups.csv'
 
 #data_file = None
 if 1:
@@ -49,22 +50,11 @@ if 1:
 
     set_seed(1)
 
-    (train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups(data_file=data_file)
+    (train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups(data_file=data_file, test_file=test_file)
     print('\t==========dataset===========')
     print('\ttrain samples: ', len(train_texts), type(train_texts))
     print('\tvalid samples: ',len(valid_texts), type(valid_texts))
-    print('>>', train_texts[0])
-    if 0:
-        start=0
-        valid_sample_n = 200
-        sample_n = valid_sample_n*5
-        train_texts = train_texts[start:sample_n]
-        train_labels = train_labels[start:sample_n]
-        valid_texts = valid_texts[start:valid_sample_n]
-        valid_labels = valid_labels[start:valid_sample_n]
-        print(len(train_texts), len(train_labels))
-        print(len(valid_texts), len(valid_labels))
-        print(target_names)
+    #print('>>', train_texts[0])
 
     # the model we gonna train, base uncased BERT
     # check text classification models here: https://huggingface.co/models?filter=text-classification
@@ -287,25 +277,6 @@ def test():
     """
     print(get_prediction(text))
 
-    # Example #2
-    text = """
-    A black hole is a place in space where gravity pulls so much that even light can not get out.
-    The gravity is so strong because matter has been squeezed into a tiny space. This can happen when a star is dying.
-    Because no light can get out, people can't see black holes.
-    They are invisible. Space telescopes with special tools can help find black holes.
-    The special tools can see how stars that are very close to black holes act differently than other stars.
-    """
-    print(get_prediction(text))
-
-    # Example #3
-    text = """
-    Coronavirus disease (COVID-19) is an infectious disease caused by a newly discovered coronavirus.
-    Most people infected with the COVID-19 virus will experience mild to moderate respiratory illness and recover without requiring special treatment.
-    Older people, and those with underlying medical problems like cardiovascular disease, diabetes, chronic respiratory disease, and cancer are more likely to develop serious illness.
-    """
-    print(get_prediction(text))
-
-    #target_names
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--predict_or_train', type=str,default='train',choices=['predict','train'])

@@ -20,45 +20,66 @@ def visulize_distribution(df):
         print('--')
         plt.show()
 
-def read_20newsgroups(data_file=None, dataset=None, test_size=0.2):
-    if data_file is not None:
-        print(data_file)
-        dataset = pd.read_csv(data_file)
-        #https://stackoverflow.com/questions/63517293/valueerror-textencodeinput-must-be-uniontextinputsequence-tupleinputsequence
-        dataset = dataset.dropna()
-        #print(dataset.shape)
-    
-    if dataset is not None: 
-        #print(dataset.head(1))
-        #print(dataset.shape)
-        #print(dataset.columns)
-        documents = list(dataset['text'])
-        labels = np.array(dataset['target'])
-        classifier_types = list(dataset['title'].unique())
-        #print(type(documents), len(documents), documents[0])
-        #print(type(labels), len(labels), labels[0])
-        #print(classifier_types, len(classifier_types))
-    else:
-        # download & load 20newsgroups dataset from sklearn's repos
-        dataset = fetch_20newsgroups(subset="all", shuffle=True, remove=("headers", "footers", "quotes"))
-        print(type(dataset))
-        documents = dataset.data
-        labels = dataset.target
-        classifier_types = dataset.target_names
-        #print(type(labels), len(labels), labels[0])
-        #print(type(dataset.target_names), dataset.target_names, len(dataset.target_names))
-        # split into training & testing a return data as well as label names
-    print(type(documents), len(documents))
-    print('>>', documents[0])
-    print('>>', documents[1])
-    return train_test_split(documents, labels, test_size=test_size), classifier_types
+def read_20newsgroups(data_file=None, test_file=None, dataset=None, test_size=0.2):
+    if test_file is not None:
+        testset = pd.read_csv(test_file)
+        testset.dropna()
+        if is_visual:
+            visulize_distribution(testset)
+        valid_texts = list(testset['text'])
+        valid_labels = np.array(testset['target'])
+        classifier_types = list(testset['title'].unique())
 
-def twenty_newsgroup_to_csv():
+        dataset = pd.read_csv(data_file)
+        dataset.dropna()
+        train_texts = list(dataset['text'])
+        train_labels = np.array(dataset['target'])
+        classifier_types = list(testset['title'].unique())
+        if is_visual:
+            visulize_distribution(dataset)
+
+        return (train_texts, valid_texts, train_labels, valid_labels), classifier_types
+    else: 
+        if data_file is not None:
+            print(data_file)
+            dataset = pd.read_csv(data_file)
+            #https://stackoverflow.com/questions/63517293/valueerror-textencodeinput-must-be-uniontextinputsequence-tupleinputsequence
+            dataset = dataset.dropna()
+            #print(dataset.shape)
+        
+        if dataset is not None: 
+            #print(dataset.head(1))
+            #print(dataset.shape)
+            #print(dataset.columns)
+            documents = list(dataset['text'])
+            labels = np.array(dataset['target'])
+            classifier_types = list(dataset['title'].unique())
+            #print(type(documents), len(documents), documents[0])
+            #print(type(labels), len(labels), labels[0])
+            #print(classifier_types, len(classifier_types))
+        else:
+            # download & load 20newsgroups dataset from sklearn's repos
+            dataset = fetch_20newsgroups(subset="all", shuffle=True, remove=("headers", "footers", "quotes"))
+            print(type(dataset))
+            documents = dataset.data
+            labels = dataset.target
+            classifier_types = dataset.target_names
+            #print(type(labels), len(labels), labels[0])
+            #print(type(dataset.target_names), dataset.target_names, len(dataset.target_names))
+            # split into training & testing a return data as well as label names
+        print(type(documents), len(documents))
+        print('>>', documents[0])
+        print('>>', documents[1])
+        return train_test_split(documents, labels, test_size=test_size), classifier_types
+
+def twenty_newsgroup_to_csv(subset=None):
     #newsgroups_train = fetch_20newsgroups(subset='train', remove=('headers', 'footers', 'quotes'))
     #newsgroups = fetch_20newsgroups(subset="all", shuffle=True, remove=("headers", "footers", "quotes"))
-    newsgroups = fetch_20newsgroups(subset="all", remove=("headers", "footers", "quotes"))
+    #newsgroups = fetch_20newsgroups(subset="all", remove=("headers", "footers", "quotes"))
     #newsgroups = fetch_20newsgroups(subset="train", remove=("headers", "footers", "quotes"))
     #newsgroups = fetch_20newsgroups(subset="test", remove=("headers", "footers", "quotes"))
+    if subset is not None:
+        newsgroups = fetch_20newsgroups(subset=subset, remove=("headers", "footers", "quotes"))
 
     df = pd.DataFrame([newsgroups.data, newsgroups.target.tolist()]).T
     df.columns = ['text', 'target']
@@ -74,6 +95,10 @@ def twenty_newsgroup_to_csv():
     if is_visual:
         visulize_distribution(out)
     return out
+
+def test_20newsgroups(dataset):
+    if is_to_csv:
+        dataset.to_csv('test_20newsgroups.csv', index=False)
 
 def iid_20newsgroups(dataset, num_users):
     """
@@ -215,13 +240,14 @@ if __name__ == '__main__':
         dict_user = iid_20newsgroups(dataset, 2)
         read_20newsgroups(dict_user[0])
         read_20newsgroups()
-    if 0: #load dataset via read_20newsgroups
-        (train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups(data_file=None)
+    if 1: #load dataset via read_20newsgroups
+        #(train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups(data_file=None)
         #(train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups(data_file='iid_20newsgroups_1.csv')
+        (train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups(data_file='noniid_label_20newsgroups_alpha0.5_1.csv', test_file='test_20newsgroups.csv')
         print(type(train_texts), len(train_texts))
         print(type(train_labels), len(train_labels))
         print(train_labels[:2])
-    if 1:
+    if 0:
         dataset = twenty_newsgroup_to_csv()
         #print(dataset.head(10))
         #dataset = fetch_20newsgroups(subset="all", shuffle=True, remove=("headers", "footers", "quotes"))
@@ -229,3 +255,6 @@ if __name__ == '__main__':
         noniid_label_20newsgroups(dataset, 2, alpha=0.5)
         num_users = 2
         #noniid_quantity_20newsgroups(dataset, beta=[0.1, 0.9])
+    if 0:
+        dataset = twenty_newsgroup_to_csv(subset='test')
+        test_20newsgroups(dataset)
