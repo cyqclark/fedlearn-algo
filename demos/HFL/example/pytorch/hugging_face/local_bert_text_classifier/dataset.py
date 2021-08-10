@@ -124,16 +124,21 @@ def noniid_label_20newsgroups(dataset, num_users, alpha=None):
 
     # sort labels
     idxs_labels = np.vstack((idxs, labels))
-    print(idxs_labels, len(idxs_labels))
-    idxs_labels = idxs_labels[:, idxs_labels[1, :].argsort()]
-    print(idxs_labels)
-    idxs = idxs_labels[0, :]
-    print(idxs, len(idxs)) 
+    #print(idxs_labels, len(idxs_labels))
+    #idxs_labels = idxs_labels[:, idxs_labels[1, :].argsort()]
+    #print(idxs_labels)
+    #idxs = idxs_labels[0, :]
+    #print(idxs, len(idxs)) 
+
+    seed_idxs = {}
+    for i in range(len(dataset)): #only two users
+        seed_idxs[idxs_labels[1][i]] = idxs_labels[0][i]
+    print('seed_idxs', seed_idxs)
 
     chosen_idxs = {i:[] for i in range(num_users)}
     #for i in range(18000,len(idxs)):
     #for i in range(100):
-    for i in range(len(idxs)): #only two users
+    for i in range(len(dataset)): #only two users
         user_id = idxs_labels[1][i] % 2
         if user_id == 0:
             #print(i, idxs_labels[0][i], idxs_labels[1][i])
@@ -141,7 +146,7 @@ def noniid_label_20newsgroups(dataset, num_users, alpha=None):
         else:
             chosen_idxs[user_id].append(idxs_labels[0][i])
     for i in range(num_users):
-        dict_users[i] = dataset.iloc[chosen_idxs[i]]
+        dict_users[i] = dataset.iloc[chosen_idxs[i] + list(seed_idxs.values())]
         #all_idxs = list(set(all_idxs) - set(chosen_idxs))
         #print({x for i, x in enumerate(dict_users[i]) if i < 5})
         if is_visual:
