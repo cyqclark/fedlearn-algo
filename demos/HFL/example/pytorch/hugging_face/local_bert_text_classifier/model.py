@@ -25,8 +25,8 @@ model_path = "20newsgroups-bert-base-uncased"
 
 data_file = 'iid_20newsgroups_0.csv'
 data_file = 'iid_20newsgroups_1.csv'
-data_file = 'niid_quantity_20newsgroups_beta0.1_0.csv'
-data_file = 'niid_quantity_20newsgroups_beta0.9_0.csv'
+data_file = 'noniid_quantity_20newsgroups_beta0.1_0.csv'
+data_file = 'noniid_quantity_20newsgroups_beta0.9_0.csv'
 
 #data_file = None
 if 1:
