@@ -1,6 +1,6 @@
 ---
 name: Add new algorithm
-about: Describe this issue template's purpose here.
+about: Implementing new algorithms
 title: ''
 labels: ''
 assignees: ''
