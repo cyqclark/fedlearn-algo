@@ -36,8 +36,11 @@ release = 'alpha'
 # ones.
 extensions = ['sphinx.ext.autodoc', 'autoapi.extension', 'sphinx.ext.coverage',
               'sphinx.ext.todo', 'numpydoc']
+
+# for autoapi
 autodoc_typehints = 'description'
-autoapi_dirs = ['../../..']
+autoapi_type = 'python'
+autoapi_dirs = ['../../../core']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

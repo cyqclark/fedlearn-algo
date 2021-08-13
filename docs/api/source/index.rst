@@ -10,7 +10,6 @@ Welcome to Fedlearn-algo's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   core
 
 
 
