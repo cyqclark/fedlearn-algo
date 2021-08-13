@@ -7,7 +7,7 @@ version: 2
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
-   configuration: source/conf.py
+   configuration: docs/api/source/conf.py
 
 # Optionally build your docs in additional formats such as PDF
 formats:
@@ -17,4 +17,4 @@ formats:
 python:
    version: "3.7"
    install:
-   - requirements: requirements.txt
+   - requirements: docs/api/requirements.txt
