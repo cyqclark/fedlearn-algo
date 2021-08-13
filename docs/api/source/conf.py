@@ -34,8 +34,9 @@ release = 'alpha'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['autoapi.extension', 'sphinx.ext.coverage', 'sphinx.ext.todo',
-              'numpydoc']
+extensions = ['sphinx.ext.autodoc', 'autoapi.extension', 'sphinx.ext.coverage',
+              'sphinx.ext.todo', 'numpydoc']
+autodoc_typehints = 'description'
 autoapi_dirs = ['../../..']
 
 # Add any paths that contain templates here, relative to this directory.
