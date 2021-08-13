@@ -40,6 +40,7 @@ extensions = ['sphinx.ext.autodoc', 'autoapi.extension', 'sphinx.ext.coverage',
 # for autoapi
 autodoc_typehints = 'description'
 autoapi_type = 'python'
+print("Path: %s"%(os.path.abspath("conf.py")))
 autoapi_dirs = ['../../../']
 
 def skip_util_classes(app, what, name, obj, skip, options):
