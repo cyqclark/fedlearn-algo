@@ -54,6 +54,7 @@ def skip_util_classes(app, what, name, obj, skip, options):
 
 def setup(sphinx):
    sphinx.connect("autoapi-skip-member", skip_util_classes)
+autoapi_dirs = ['../../../']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
