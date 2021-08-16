@@ -1,5 +1,16 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# Copyright 2021 Fedlearn authors.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import numpy as np
 import pandas as pd
 from sklearn.datasets import fetch_20newsgroups
@@ -154,9 +165,18 @@ def noniid_label_20newsgroups(dataset, num_users, alpha=None):
     #idxs = idxs_labels[0, :]
     #print(idxs, len(idxs)) 
 
+    safe_idxs = []
     seed_idxs = {}
     for i in range(len(dataset)): #only two users
-        seed_idxs[idxs_labels[1][i]] = idxs_labels[0][i]
+        key  = idxs_labels[1][i]
+        if key in seed_idxs:
+            if seed_idxs[key] < 3:
+                safe_idxs.append(idxs_labels[0][i]) 
+            seed_idxs[key] += 1
+        else:
+            safe_idxs.append(idxs_labels[0][i]) 
+            seed_idxs[key] = 1
+        #seed_idxs[idxs_labels[1][i]] = idxs_labels[0][i]
     print('seed_idxs', seed_idxs)
 
     chosen_idxs = {i:[] for i in range(num_users)}
@@ -170,7 +190,7 @@ def noniid_label_20newsgroups(dataset, num_users, alpha=None):
         else:
             chosen_idxs[user_id].append(idxs_labels[0][i])
     for i in range(num_users):
-        dict_users[i] = dataset.iloc[chosen_idxs[i] + list(seed_idxs.values())]
+        dict_users[i] = dataset.iloc[chosen_idxs[i] + safe_idxs]
         #all_idxs = list(set(all_idxs) - set(chosen_idxs))
         #print({x for i, x in enumerate(dict_users[i]) if i < 5})
         if is_visual:
@@ -239,15 +259,15 @@ if __name__ == '__main__':
         dict_user = iid_20newsgroups(dataset, 2)
         read_20newsgroups(dict_user[0])
         read_20newsgroups()
-    if 1: #load dataset via read_20newsgroups
+    if 0: #load dataset via read_20newsgroups
         #(train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups(data_file=None)
         #(train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups(data_file='iid_20newsgroups_1.csv')
-        (train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups(data_file='noniid_label_20newsgroups_alpha0.5_1.csv', test_file='test_20newsgroups.csv')
+        (train_texts, valid_texts, train_labels, valid_labels), target_names = read_20newsgroups(data_file='noniid_label_20newsgroups_alpha0.5_0.csv', test_file='test_20newsgroups.csv')
         print(type(train_texts), len(train_texts))
         print(type(train_labels), len(train_labels))
         print(train_labels[:2])
-    if 0:
-        dataset = twenty_newsgroup_to_csv()
+    if 1:
+        dataset = twenty_newsgroup_to_csv(subset='train')
         #print(dataset.head(10))
         #dataset = fetch_20newsgroups(subset="all", shuffle=True, remove=("headers", "footers", "quotes"))
         #dict_user = noniid_20newsgroups(dataset, 2)
