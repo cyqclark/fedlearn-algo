@@ -113,6 +113,8 @@ class DataConfig():
     preprocessing_num_workers:int = 8
     max_seq_length:int = 256
 
+TrainConfig = TrainingArguments
+
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 def compute_metrics(pred):
       true_labels = pred.label_ids

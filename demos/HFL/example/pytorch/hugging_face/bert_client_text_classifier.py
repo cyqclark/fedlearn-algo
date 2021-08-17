@@ -17,34 +17,14 @@ import time
 from typing import Callable, List, Dict, Union
 
 root_path = os.getcwd()
-
-sys.path.append(root_path)
-sys.path.append(os.path.join(root_path,'core/entity'))
-sys.path.append(os.path.join(root_path,'demos/HFL'))
-
 BERT_ROOT = os.path.join(root_path,'demos/HFL/example/pytorch/hugging_face')
 
-from demos.HFL.example.pytorch.hugging_face.local_bert_lm.model import (
-    BertMlM_Model,
+from demos.HFL.example.pytorch.hugging_face.bert_client import BertClient
+from demos.HFL.example.pytorch.hugging_face.local_bert_text_classifier.model import (
+    BertTextClassifier,
     DataConfig,
     TrainConfig
 )
-from demos.HFL.example.pytorch.hugging_face.local_bert_text_classifier.model import (
-    BertTextClassifier
-)
-
-from demos.HFL.base_client import Client
-from demos.HFL.common.param_util import(
-    Params,
-    ParamsRes,
-    TrainArgs,
-    EvalArgs,
-    TrainRes,
-    EvalRes,
-    NLPInferArgs,
-    NLPInferRes
-)
-
 
 _TRAIN_DATA_FILE_='data/demo_train_data.txt'
 
@@ -83,7 +63,7 @@ def get_train_args():
             
         return data_config, train_config,     
 
-class BertClientTextClassifier(Client):
+class BertClientTextClassifier(BertClient):
     
     def __init__(self,
                 config:Dict[str,Union[str,float,int]]=None):
@@ -97,50 +77,3 @@ class BertClientTextClassifier(Client):
         print('\t', self.model)        
 
         
-    def get_params(self)->ParamsRes:
-        
-        param_dict: Dict[str,np.ndarray] = \
-            self.model.get_model_parameters()
-        
-        return ParamsRes(
-            Params(
-                list(param_dict.keys()),
-                list(param_dict.values()),
-                weight_type='float'),
-            response_messages={'dummy_msg',1})       
-    
-    
-    def set_params(self, params:Params)->None:
-        model_params = dict(zip(params.names,params.weights))
-        self.model.set_model_parameters(model_params)
-    
-   
-    def train(self, trainArgs:TrainArgs)->TrainRes:
-        self.set_params(trainArgs.params)
-        param_dict, metrics  = self.model.train()
-        
-        trainRes = TrainRes(
-            params = Params(
-                names=list(param_dict.keys()),
-                weights=list(param_dict.values()),
-                weight_type='float'),
-            num_samples= metrics['train_samples'],
-            metrics =  metrics  
-        )
-        return trainRes
-
-
-    def inference(self, inputArgs: NLPInferArgs) -> NLPInferRes:
-        if inputArgs.params is not None:
-           self.set_params(inputArgs.params)
-
-        predicts = self.model.inference(inputArgs.inputs)
-        inferRes = NLPInferRes(
-            inputArgs.inputs,
-            outputs=predicts
-        )
-        return inferRes   
-
-   
-    def evaluate(self, evalAgrs:EvalArgs)->EvalArgs:
-        pass
