@@ -21,15 +21,16 @@ import time
 
 import numpy
 
-import ClientWrapper
+import client
+import coordinator
 import EncodedNumber
 
 import unittest   # The test framework
 
 def test_comparison():
 
-    active = ClientWrapper.ActiveWrapper(1.)
-    passive = ClientWrapper.PassiveWrapper(1.)
+    active = coordinator.ActiveWrapper(1.)
+    passive = client.PassiveWrapper(1.)
 
     active_number = numpy.random.rand()
     passive_number = numpy.random.rand()

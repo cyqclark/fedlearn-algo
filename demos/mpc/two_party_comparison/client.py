@@ -11,88 +11,8 @@ import EncodedNumber, util
 
 sys.path.append(os.getcwd())
 from core.client.client import Client
+from core.entity.common.message import RequestMessage, ResponseMessage
 from ot_core import Alice1_nOT, Bob
-
-class ActiveWrapper(Bob, Client):
-    def __init__(self,
-                 raw_number,
-                 rand_message_bit=256):
-
-        # Bob initialization
-        Bob.__init__(self, rand_message_bit)
-        self.control_map = {0: self.init_request,
-                            1: self.second_request,
-                            2: self.parse_final}
-        self.reset_auto_machine()
-        self.set_raw_number(raw_number)
-
-        # Client initialization
-        self.dict_functions = {}
-        return None
-        
-    def set_raw_number(self, raw_number):
-        self.raw_number = raw_number
-        self.encoded_number = EncodedNumber.OTEncodedNumber(raw_number)
-        self.secret = self.encoded_number.encoded_number_array_decimal
-        return None
-
-    def reset_auto_machine(self):
-        self.current_state = -1
-        return None
-
-    def auto_send(self, message):
-        """
-        Auto send machine, experimental.
-        """
-        if self.current_state == -1:
-            self.current_state = 0
-        elif self.current_state == 0:
-            self.current_state = 1
-        elif self.current_state == 1:
-            self.current_state = 2
-        elif self.current_state == 2:
-            print("Finish!")
-            return None
-        return self.control_map[self.current_state](message)
-
-    def init_request(self, message=None):
-        """
-        Send start comparison request
-        """
-        return "start"
-
-    def second_request(self, message):
-        """
-        Receive first response and send second request
-        """
-        # deserialization
-        message = json.loads(message)
-
-        message["key"] = util.create_rsa_key(message["key"])
-        self.receive_alice_key_with_rand_message_array(message)
-        request = self.send_selected_message_array(self.secret)
-        
-        # serialization
-        return json.dumps(request)
-
-    def parse_final(self, message):
-        """
-        Receive second response and parse the final result
-        """
-
-        # deserialization
-        message = json.loads(message)
-
-        self.receive_secret(message, self.secret)
-        self.result = self.parse_result()
-        return self.result
-
-    # training part
-    def train_init(self):
-        return None
-    
-    def inference_init(self):
-        return None
 
 
 class PassiveWrapper(Alice1_nOT, Client):
@@ -154,6 +74,13 @@ class PassiveWrapper(Alice1_nOT, Client):
 
         # serialization
         return json.dumps(response)
+
+    def make_response(request, body):
+        response = ResponseMessage(self.machine_info,
+                                   request.server_info,
+                                   body,
+                                   phase_id=request.phase_id)
+        return None
 
     # training part
     def train_init(self):
