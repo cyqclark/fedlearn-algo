@@ -31,15 +31,21 @@ from ot_core import Alice1_nOT, Bob
 class PassiveWrapper(Alice1_nOT, Client):
     def __init__(self,
                  raw_number,
+                 client_info,
                  rsa_key=None,
                  rsa_key_size=512,
                  rand_message_bit=16):
         Alice1_nOT.__init__(self, rsa_key, rsa_key_size, rand_message_bit)
-        self.control_map = {0: self.init_response,
-                            1: self.second_response,
-                            }
-        self.reset_auto_machine()
+        #self.reset_auto_machine()
         self.set_raw_number(raw_number)
+        
+        self.dict_functions = {"0": self.init_response_grpc,
+                               "1": self.second_response_grpc,
+                              }
+        self.client_info = client_info
+        # no preprocessing or postprocessing in this demo training code
+        self.preprocessing_func = {}
+        self.postprocessing_func = {}
         return None
 
     def reset_auto_machine(self):
@@ -52,6 +58,24 @@ class PassiveWrapper(Alice1_nOT, Client):
         self.secret = self.encoded_number.compose_secret(
             self.encoded_number.encoded_number_array_decimal)
         return None
+
+    def control_flow_client(self,
+                            phase_num,
+                            request):
+        """
+        The main control flow of client. This might be able to work in a generic
+        environment.
+        """
+        # if phase has preprocessing, then call preprocessing func
+        response = request
+        if phase_num in self.preprocessing_func:
+            response = self.preprocessing_func[phase_num](response)
+        if phase_num in self.dict_functions:
+            response = self.dict_functions[phase_num](response)
+        # if phase has postprocessing, then call postprocessing func
+        if phase_num in self.postprocessing_func:
+            response = self.postprocessing_func[phase_num](response)
+        return response
 
     def auto_receive(self, message):
         """
@@ -66,6 +90,11 @@ class PassiveWrapper(Alice1_nOT, Client):
             return None
         return self.control_map[self.current_state](message)
 
+    def init_response_grpc(self, request):
+        body = request.body["body"] if "body" in request.body else ""
+        response = self.init_response(body)
+        return self.make_response(request, body={"body": response})
+
     def init_response(self, message=None):
         """
         Receive start request and send response
@@ -74,6 +103,11 @@ class PassiveWrapper(Alice1_nOT, Client):
         # serialization
         response["key"] = util.extract_rsa_key(response["key"])
         return json.dumps(response)
+
+    def second_response_grpc(self, request):
+        message = request.body["body"]
+        response = self.second_response(message)
+        return self.make_response(request, body={"body": response})
 
     def second_response(self, message):
         """
@@ -88,12 +122,12 @@ class PassiveWrapper(Alice1_nOT, Client):
         # serialization
         return json.dumps(response)
 
-    def make_response(request, body):
-        response = ResponseMessage(self.machine_info,
+    def make_response(self, request, body):
+        response = ResponseMessage(self.client_info,
                                    request.server_info,
                                    body,
                                    phase_id=request.phase_id)
-        return None
+        return response
 
     # training part
     def train_init(self):
