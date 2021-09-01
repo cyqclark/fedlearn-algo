@@ -15,6 +15,7 @@
 from core.entity.common.message import RequestMessage, ResponseMessage
 from core.grpc_comm.grpc_converter import grpc_msg_to_common_msg, common_msg_to_grpc_msg
 from core.proto.transmission_pb2 import ReqResMessage
+from core.grpc_comm.grpc_client import send_request
 from core.proto.transmission_pb2_grpc import TransmissionServicer
 from abc import abstractmethod
 
@@ -119,3 +120,81 @@ class Client(TransmissionServicer):
         common_req_msg = grpc_msg_to_common_msg(grpc_request)
         common_res_msg = self.process_request(common_req_msg)
         return common_msg_to_grpc_msg(common_res_msg)
+
+    # optional for coordinator
+    def load_coordinator(self, coordinator):
+        self.coordinator = coordinator
+        self._has_coordinator = True
+        return None
+
+    def _exp_call_local_client(self, request):
+        common_res_msg = self.process_request(request)
+        return common_res_msg
+
+    def _exp_send_grpc_request(self,
+                                request):
+        """
+        Experiment function for new sending grpc request
+        """
+        client_info = request.client_info
+        if (client_info.ip == self._client_info.ip) and (
+            client_info.port == self._client_info.port):
+            response = self._exp_call_local_client(request)
+        else:
+            response = send_request(request)
+        return response
+
+    def _exp_call_grpc_client(self, requests, is_parallel=True):
+        responses = {}
+        """
+        if is_parallel:
+            req_client_info_list = []
+            parallel_grpc_client_thread_list = []
+            for client_info, request in requests.items():
+                req_client_info_list.append(client_info)
+                temp_t = SendingThread(send_grpc_request, args=request)
+                parallel_grpc_client_thread_list.append(temp_t)
+            for i, t in enumerate(parallel_grpc_client_thread_list):
+                t.setDaemon(True)
+                t.start()
+            for client_info, t in zip(req_client_info_list, parallel_grpc_client_thread_list):
+                t.join()
+                responses[client_info] = t.get_result()
+        else:
+        """
+        for client_info, request in requests.items():
+            responses[client_info] = self._exp_send_grpc_request(request)
+        return responses
+
+    def _exp_training_pipeline(self, init_phase: str, is_parallel=False) -> None:
+        """
+        Main training pipeline. The protocol includes the following steps:
+        1) Initialization
+        2) While loop of training
+        3) Post processing after training
+        
+        Parameters:
+        -----------
+        clients: list
+            List of MachineInfo object that contains the connect information of each client.
+        
+        Returns
+        -------
+        None
+        """
+        # Training initialization. Send initialization signal to all clients.
+        if not hasattr(self, "_has_coordinator"):
+            raise ValueError("The running client does not have coordinator addon!")
+        phase = init_phase
+        requests = self.coordinator.init_training_control()
+        responses = self._exp_call_grpc_client(requests, is_parallel)
+        requests, phase = self.coordinator.synchronous_control(responses, phase)
+
+        # Training loop. parallel sending requests
+        while self.coordinator.is_training_continue():
+            responses = self._exp_call_grpc_client(requests, is_parallel)
+            requests, phase = self.coordinator.synchronous_control(responses, phase)
+
+        # Training process finish. Send finish signal to all clients.
+        requests = self.coordinator.post_training_session()
+        responses = self._exp_call_grpc_client(requests, is_parallel)
