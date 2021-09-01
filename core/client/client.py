@@ -30,6 +30,8 @@ class Client(TransmissionServicer):
     """
     Basic client class
     """
+    def __init__(self, client_info=None):
+        self._client_info = client_info
 
     @property
     def dict_functions(self):
