@@ -12,6 +12,7 @@
 # limitations under the License.
 
 # This file is the class template theABC JDT client
+from core.entity.common.machineinfo import MachineInfo
 from core.entity.common.message import RequestMessage, ResponseMessage
 from core.grpc_comm.grpc_converter import grpc_msg_to_common_msg, common_msg_to_grpc_msg
 from core.proto.transmission_pb2 import ReqResMessage
@@ -19,7 +20,7 @@ from core.grpc_comm.grpc_client import send_request
 from core.proto.transmission_pb2_grpc import TransmissionServicer
 from abc import abstractmethod
 
-from typing import Dict
+from typing import Dict, List
 import pickle
 
 class ClientError(ValueError):
@@ -114,7 +115,7 @@ class Client(TransmissionServicer):
         """
         symbol = request.phase_id
         if symbol not in self.dict_functions.keys():
-            raise ClientError("Function %s is not implemented.", symbol)
+            raise ClientError("Function %s is not implemented."%symbol)
         response = self.dict_functions[symbol](request)
         return response
 

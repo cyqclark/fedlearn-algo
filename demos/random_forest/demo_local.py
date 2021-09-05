@@ -84,24 +84,26 @@ client_map = {client_info1: client1,
 
 client_infos = [client_info1, client_info2, client_info3]
 coordinator = RandomForestCoordinator(coordinator_info, client_infos, parameter, remote=True)
+# update
+client1.load_coordinator(coordinator)
 
 # training
 # coordinatorserver.training_pipeline()
 
 phase = "0"
 # Initialization
-init_requests = coordinator.init_training_control()
+init_requests = client1.coordinator.init_training_control()
 responses = {}
 for client_info, reqi in init_requests.items():
     client = client_map[client_info]
     responses[client_info] = client.control_flow_client(reqi.phase_id, reqi)
 
 while True:
-    phase = coordinator.get_next_phase(phase)
+    phase = client1.coordinator.get_next_phase(phase)
     print("Phase %s start..."%phase)
-    requests = coordinator.control_flow_coordinator(phase, responses)
+    requests = client1.coordinator.control_flow_coordinator(phase, responses)
     responses = {}
-    if coordinator.is_training_continue():
+    if client1.coordinator.is_training_continue():
         for client_info, reqi in requests.items():
             client = client_map[client_info]
             responses[client_info] = client.control_flow_client(reqi.phase_id, reqi.copy())
@@ -116,7 +118,7 @@ while True:
 # inference
 phase = "-1"
 # Initialization
-init_requests = coordinator.init_inference_control()
+init_requests = client1.coordinator.init_inference_control()
 responses = {}
 
 for client_info, reqi in init_requests.items():
@@ -124,12 +126,12 @@ for client_info, reqi in init_requests.items():
     responses[client_info] = client.control_flow_client(reqi.phase_id, reqi)
 
 while True:
-    phase = coordinator.get_next_phase(phase)
+    phase = client1.coordinator.get_next_phase(phase)
     #logging.info("Phase %s start..."%phase)
     print("Phase %s start..."%phase)
-    requests = coordinator.control_flow_coordinator(phase, responses)
+    requests = client1.coordinator.control_flow_coordinator(phase, responses)
     responses = {}
-    if coordinator.is_inference_continue():
+    if client1.coordinator.is_inference_continue():
         for client_info, reqi in requests.items():
             client = client_map[client_info]
             responses[client_info] = client.control_flow_client(reqi.phase_id, reqi.copy())
