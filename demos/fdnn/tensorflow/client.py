@@ -354,6 +354,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-I', '--index', type=int, required=True, help='index of client')
     parser.add_argument('-C', '--python_config_file', type=str, required=True, help='python config file')
+    parser.add_argument('-F', '--flag_network', type=str, required=False, default="F", help='flag to use new network api')
 
     args = parser.parse_args()
     idx = args.index
@@ -378,20 +379,27 @@ if __name__ == "__main__":
     parameter = config.parameter
     client = FDNNClient(client_info, parameter, dataset, remote=True)
 
-    # set active client
-    if config.active_index == args.index:
-        coordinator_info = MachineInfo(ip=ip, port=port,
-                                       token=config.coordinator_ip_and_port)
-        client_infos = []
-        for ci in config.client_ip_and_port:
-            ip, port = ci.split(":")
-            client_infos.append(MachineInfo(ip=ip, port=port, token=ci))
-        coordinator = FDNNCoordinator(coordinator_info,
-                                      client_infos,
-                                      config.parameter,
-                                      remote=True)
-        client.load_coordinator(coordinator)
-        client._exp_training_pipeline("0")
-    else:
+    if ("flag_network" not in args) or (args.flag_network == "F"):
+        # old api framework
         serve(client)
+    elif args.flag_network == "T":    
+        # set active client
+        if config.active_index == args.index:
+            coordinator_info = MachineInfo(ip=ip, port=port,
+                                           token=config.coordinator_ip_and_port)
+            client_infos = []
+            for ci in config.client_ip_and_port:
+                ip, port = ci.split(":")
+                client_infos.append(MachineInfo(ip=ip, port=port, token=ci))
+            coordinator = FDNNCoordinator(coordinator_info,
+                                          client_infos,
+                                          config.parameter,
+                                          remote=True)
+            client.load_coordinator(coordinator)
+            client._exp_training_pipeline("0")
+        else:
+            serve(client)
+    else:
+        raise ValueError("Invalid flag network")
+
 
