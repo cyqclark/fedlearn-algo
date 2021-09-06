@@ -73,13 +73,13 @@ def load_client(cfg, args):
             # passive party
             client.load_data(data_path=data_path, feature_names=features)
 
-            client.normalization(norm_type=cfg.get('Data', 'normalization'))
-            client.kernel_mapping_param = KernelMappingParam(scale=float(cfg.get('Model', 'scale')),
-                                                             feature_dim=len(features),
-                                                             map_dim=int(cfg.get('Model', 'map_dim')),
-                                                             seed=0)
-            # client.model_path = cfg.get('Model', 'model_path')
-            client.model_path = cfg.get('Model', 'model')
+        client.normalization(norm_type=cfg.get('Data', 'normalization'))
+        client.kernel_mapping_param = KernelMappingParam(scale=float(cfg.get('Model', 'scale')),
+                                                         feature_dim=len(features),
+                                                         map_dim=int(cfg.get('Model', 'map_dim')),
+                                                         seed=0)
+        # client.model_path = cfg.get('Model', 'model_path')
+        client.model_path = cfg.get('Model', 'model')
     elif mode == 'inference':
         client.load_data(data_path=data_path, feature_names=cfg.get('Data', 'features').split(','))
         client.model = client.load_model(model_path=cfg.get('Model', 'model_path'))
@@ -106,8 +106,6 @@ if __name__ == '__main__':
         # old api framework
         serve(client)
     elif args.flag_network == "T":
-        import pdb
-        pdb.set_trace()
         # new api framework
         mode = cfg.get('Machine', 'mode')
         if mode == 'train':
