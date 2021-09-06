@@ -45,6 +45,7 @@ from core.client.client import Client
 from core.grpc_comm.grpc_server import serve
 
 import ActiveModel, PassiveModel, util
+from coordinator import FDNNCoordinator
 
 
 class FDNNClient(Client):
@@ -81,6 +82,7 @@ class FDNNClient(Client):
                  remote=False):
         # super.__init__(parameter)
         # pass arguments
+        super().__init__(machine_info)
         self.parameter = parameter
         self.machine_info = machine_info
         self.dataset = dataset
@@ -376,5 +378,20 @@ if __name__ == "__main__":
     parameter = config.parameter
     client = FDNNClient(client_info, parameter, dataset, remote=True)
 
-    serve(client)
+    # set active client
+    if config.active_index == args.index:
+        coordinator_info = MachineInfo(ip=ip, port=port,
+                                       token=config.coordinator_ip_and_port)
+        client_infos = []
+        for ci in config.client_ip_and_port:
+            ip, port = ci.split(":")
+            client_infos.append(MachineInfo(ip=ip, port=port, token=ci))
+        coordinator = FDNNCoordinator(coordinator_info,
+                                      client_infos,
+                                      config.parameter,
+                                      remote=True)
+        client.load_coordinator(coordinator)
+        client._exp_training_pipeline("0")
+    else:
+        serve(client)
 
