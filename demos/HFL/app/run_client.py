@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 from core.entity.common.machineinfo import MachineInfo
 
-from com_utils import AttributeDict
+from demos.HFL.communicator.com_utils import AttributeDict
 
 from demos.HFL.communicator.com_builder import (
     Communicator_Builder,
