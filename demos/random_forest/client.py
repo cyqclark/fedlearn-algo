@@ -45,6 +45,8 @@ sys.path.append(os.getcwd())
 from core.entity.common.machineinfo import MachineInfo
 from core.entity.common.message import RequestMessage, ResponseMessage
 from core.client.client import Client
+#from new_client import Client
+from coordinator import RandomForestCoordinator
 from core.grpc_comm.grpc_server import serve
 
 
@@ -82,6 +84,7 @@ class RandomForestClient(Client):
                  remote=False):
         # super.__init__(parameter)
         # pass arguments
+        super().__init__(machine_info)
         self.parameter = parameter
         self.machine_info = machine_info
         self.dataset = dataset
@@ -663,7 +666,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-I', '--index', type=int, required=True, help='index of client')
     parser.add_argument('-C', '--python_config_file', type=str, required=True, help='python config file')
-
+    
     args = parser.parse_args()
     idx = args.index
     config = SourceFileLoader("config", args.python_config_file).load_module()
@@ -687,5 +690,20 @@ if __name__ == "__main__":
     parameter = config.parameter
     client = RandomForestClient(client_info, parameter, dataset, remote=True)
 
-    serve(client)
+    # set active client
+    if config.active_index == args.index:
+        coordinator_info = MachineInfo(ip=ip, port=port,
+                                       token=config.coordinator_ip_and_port)
+        client_infos = []
+        for ci in config.client_ip_and_port:
+            ip, port = ci.split(":")
+            client_infos.append(MachineInfo(ip=ip, port=port, token=ci))
+        coordinator = RandomForestCoordinator(coordinator_info,
+                                              client_infos,
+                                              config.parameter,
+                                              remote=True)
+        client.load_coordinator(coordinator)
+        client._exp_training_pipeline("0")
+    else:
+        serve(client)
 

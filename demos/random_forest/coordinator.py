@@ -82,14 +82,14 @@ class RandomForestCoordinator(Server):
         self.machine_info_client = machine_info_client
         # set function mapping
         self.dict_functions = {"1": self.random_forest_coordinator_phase1,
-                           "2": self.random_forest_coordinator_phase2,
-                           "3": self.random_forest_coordinator_phase3,
-                           "4": self.random_forest_coordinator_phase4,
-                           "5": self.random_forest_coordinator_phase5,
-                           "-1": self.random_forest_coordinator_inference_phase1,
-                           "-2": self.random_forest_coordinator_inference_phase2,
-                           "-3": self.random_forest_coordinator_inference_phase3,
-                           }
+                               "2": self.random_forest_coordinator_phase2,
+                               "3": self.random_forest_coordinator_phase3,
+                               "4": self.random_forest_coordinator_phase4,
+                               "5": self.random_forest_coordinator_phase5,
+                               "-1": self.random_forest_coordinator_inference_phase1,
+                               "-2": self.random_forest_coordinator_inference_phase2,
+                               "-3": self.random_forest_coordinator_inference_phase3,
+                               }
         # no preprocessing or postprocessing in this demo training code
         self.preprocessing_func = {}
         self.postprocessing_func = {}
