@@ -41,6 +41,7 @@ echo "4. check numpy/scipy related..."
 ## or one can use anaconda which has a built-in runtime of MKL.
 python3 -m pip install numpy scipy pandas sklearn tensorboard datasets tornado
 
+
 ## grpc related
 
 python3 -m pip install grpcio grpcio-tools

@@ -20,7 +20,8 @@ import sys
 import time
 
 root_path = os.getcwd()
-_LOCALHOST = socket.gethostbyname(socket.gethostname())
+_LOCALHOST = socket.gethostname()
+#_LOCALHOST = 'localhost'
 sys.path.append(root_path)
 sys.path.append(os.path.join(root_path,'demos/HFL'))
 sys.path.append(os.path.join(root_path,'demos/HFL/communicator'))
@@ -35,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 from core.entity.common.machineinfo import MachineInfo
 
-from com_utils import AttributeDict
+from demos.HFL.communicator.com_utils import AttributeDict
 
 from demos.HFL.communicator.com_builder import (
     Communicator_Builder,
@@ -62,7 +63,8 @@ from demos.HFL.common.param_util import(
 def client_server_comm_pipeline(
                                     mode = 'client', 
                                     client_port=8899,
-                                    server_ip=socket.gethostbyname(socket.gethostname()),
+                                    #server_ip=socket.gethostbyname(socket.gethostname()),
+                                    server_ip='localhost',
                                     server_port=8890,
                                     model_name='dummy_model',
                                     comm_type=CommType.GRPC_COMM,

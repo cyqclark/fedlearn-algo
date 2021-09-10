@@ -30,7 +30,8 @@ def run_server(args):
     server = Server(
         port=args.port,
         num_clients_to_train=args.num_client,
-        comm_type=args.comm_type)
+        comm_type=args.comm_type,
+        algo_arch=args.algo_arch)
     
     server.run()
 
@@ -41,6 +42,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_client',help = 'number of clients to start train', type=int, default=2)
     parser.add_argument('--port',help = 'port', default=8890) 
     parser.add_argument('--comm_type',help='communicator name: Option[grpc,tornado]',type=str, default='grpc')                 
+    parser.add_argument('--algo_arch',help='algorithm architecture : Option[sync,async]',type=str, default='sync')                 
     args = parser.parse_args()
     
     run_server(args)

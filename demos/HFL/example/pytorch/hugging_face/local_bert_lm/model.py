@@ -274,7 +274,7 @@ class BertMlM_Model():
 def get_configs():
     
     config_file ='local_config.json'        
-    with open(os.path.join(_ROOTDIR_,config_file)) as f:
+    with open(os.path.join(_ROOTDIR_,os.path.join('local_bert_lm',config_file))) as f:
         configs = json.load(f)
 
     # configs['train_config']['output_dir'] = os.path.join(_ROOTDIR_, configs['train_config']['output_dir']) 
@@ -294,6 +294,15 @@ def local_train():
     model.train()
 
 
+    text_test_file = f'{_ROOTDIR_}/test_sentences.txt'
+    text_output_file = f'{_ROOTDIR_}/output_test_sentences.txt'
+    texts = [line.strip() for line in  open(text_test_file,'r')]
+    with torch.no_grad():
+        cls_represnts:Dict[str,List] = model.inference(inputs_sents=texts)
+
+    with open(text_output_file ,'w') as f:
+        for v in cls_represnts['CLS']:
+            f.write(str(v.tolist()) +'\n')
 def local_predict():
     
     configs = get_configs()
@@ -301,7 +310,7 @@ def local_predict():
     configs['train_config'].do_train=False
     
     model = BertMlM_Model(**configs,
-                        pretrained_model_name='bert-base-chinese',
+                        #pretrained_model_name='bert-base-chinese',
                         init_from_local_pretrained=True)
 
     text_test_file = f'{_ROOTDIR_}/test_sentences.txt'
