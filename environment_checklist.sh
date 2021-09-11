@@ -33,7 +33,14 @@ echo "Paillier packages checking finished."
 echo "4. check numpy/scipy related..."
 ## numpy scipy related
 
-python3 -m pip install intel-numpy intel-scipy pandas sklearn tensorboard datasets tornado
+## Note: intel no longer support single distribution of numpy/scipy with intel MKL.
+## Here we use normal numpy scipy in pip.
+## For users that would like to get the best performance, we suggest using numpy/scipy built with intel MKL.
+## There are several ways to get numpy/scipy with MKL. For example, one can get it from intel distribution for python:
+## https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/distribution-for-python.html#gs.av4cnp
+## or one can use anaconda which has a built-in runtime of MKL.
+python3 -m pip install numpy scipy pandas sklearn tensorboard datasets tornado
+
 
 ## grpc related
 

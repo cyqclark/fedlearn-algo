@@ -36,6 +36,7 @@ class ModelName():
     ONEFLOW_BERT = 'oneflow_bert'
     PYTORCH_BERT = 'pytorch_bert'
     PYTORCH_BERT_TINY = 'pytorch_bert_tiny'
+    PYTORCH_BERT_TextClassifier = 'pytorch_bert_text_classifier'
     PYTORCH_MNIST = 'pytorch_mnist'
     
 
@@ -63,16 +64,23 @@ def create_client(client_name:str,
         from demos.HFL.example.oneflow.bert_client import BertClient
         return BertClient()
     
-    elif client_name in [ModelName.PYTORCH_BERT,ModelName.PYTORCH_BERT_TINY]:
+    elif client_name in [ModelName.PYTORCH_BERT,ModelName.PYTORCH_BERT_TINY,\
+                ModelName.PYTORCH_BERT_TextClassifier]:
         from demos.HFL.example.pytorch.hugging_face.bert_client import BertClient
+        from demos.HFL.example.pytorch.hugging_face.bert_client_text_classifier import BertClientTextClassifier
         huggingface_madel_map = {ModelName.PYTORCH_BERT:'bert-base-chinese',
-                                 ModelName.PYTORCH_BERT_TINY:'uer/chinese_roberta_L-2_H-128'}
-
-        return BertClient(
-            config={
-                'pretrained_model_name': huggingface_madel_map[client_name]}
-        )
-
+                                 ModelName.PYTORCH_BERT_TINY:'uer/chinese_roberta_L-2_H-128',
+                                 ModelName.PYTORCH_BERT_TextClassifier: 'bert-base-uncased'}
+        if client_name == ModelName.PYTORCH_BERT_TextClassifier:
+            return BertClientTextClassifier(
+                config={
+                    'pretrained_model_name': huggingface_madel_map[client_name]}
+            )
+        else:
+            return BertClient(
+                config={
+                    'pretrained_model_name': huggingface_madel_map[client_name]}
+            )
     elif client_name ==  ModelName.DUMMY_MODEL:
         from demos.HFL.example.dummy.dummy_client import DummyClient
         return DummyClient()        

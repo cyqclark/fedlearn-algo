@@ -13,6 +13,7 @@
 
 import os,sys
 import concurrent.futures
+from threading import Condition, Lock, Thread
 
 root_path = os.getcwd()
 
@@ -58,7 +59,11 @@ from demos.HFL.client.client_com_manager_base import (
     ClientMode
 )
 
-_NUM_ROUNDS_=10
+_NUM_ROUNDS_= 10 #10
+class AlgoArch():
+   SYNC = 'sync'
+   ASYNC = 'async'
+
 class Server(Msg_Handler):
     """
     Federal learning Server
@@ -91,14 +96,17 @@ class Server(Msg_Handler):
     MODE_ACTIVE='active'
     MODE_PASSIVE='passive'
     
+    CSTATUS_INIT = 'INIT' 
+    CSTATUS_LOCALREADY = 'LOCALREADY'
+    CSTATUS_GLOBALREADY = 'GLOBALREADY'
 
     def __init__(self, 
                  port:int=8890, 
                  num_clients_to_train:int=2,
                  comm_type=CommType.TORNADO_COMM,
                  comm_instance:GeneralCommunicator=None,
-                 clients_ip_port:List[str]=None):
-                
+                 clients_ip_port:List[str]=None,
+                 algo_arch=AlgoArch.SYNC):                
         
         self.port = str(port)
         self.num_clients_to_train = num_clients_to_train
@@ -130,6 +138,27 @@ class Server(Msg_Handler):
                 [self._parse_client_ip_port(ip_port) for ip_port in self. clients_ip_port]
 
         logger.info(f'There are {len(self.comm._msg_handlers)} handlers ...') 
+        
+        self.aggregation_type = algo_arch
+        logger.info(f'Current algorithm architecture {self.aggregation_type}.') 
+        if self.aggregation_type == AlgoArch.ASYNC:
+            self._p = 0
+            self.lock = Lock()
+            self.aggr_event = Condition(self.lock)
+            self.n_aggr = 0
+            #self.aggr_event = Condition()
+            logger.info(f'\nInit aggr_event : {self.aggr_event}') 
+            #self.train_events = [Condition(self.lock) for _ in range(num_clients_to_train)]
+            self.train_events = [Condition() for _ in range(num_clients_to_train)]
+            logger.info(f'\nInit train_events: {self.train_events}') 
+
+            self.modelDB = {}
+            self.gModel = None
+            self.numSamples = {}
+            self.client_status = {}
+            for client_id in range(self.num_clients_to_train):
+                self.client_status[client_id] = Server.CSTATUS_INIT
+                self.numSamples[client_id] = 0
         
         logger.info('Done server init ... ')
     
@@ -244,9 +273,89 @@ class Server(Msg_Handler):
 
             empty_config={}
             return FedAvg(empty_config)(trainRes_list)
-                    
+    
+    def async_aggregate(self, client_id):
+        with self.aggr_event:
+            self.n_aggr += 1 
+            logger.info(f'async_aggr client#{client_id} time#{self.n_aggr}')
+            if self.gModel is None:
+                self.gModel = self.modelDB[client_id]['local'].params
+                return
+ 
+            logger.info(f'client#{client_id} time#{self.n_aggr}: {self.modelDB[client_id].keys()}')
+            total_samples = sum(self.numSamples.values())
+            logger.info(f'client#{client_id} time#{self.n_aggr}: total_sample={total_samples}')
+            trainRes_list = [
+                    self.modelDB[client_id]['local'],
+                    TrainRes(self.gModel, total_samples)]
+            #logger.info(f'aggr {trainRes_list}')
+            for i, trainRes in enumerate(trainRes_list):
+                #logger.info(f'params ###{i}###')
+                w_names = trainRes.params.names
+                #logger.info(f'params {w_names}')
+                num_samples = trainRes.num_samples 
+                logger.info(f'client#{client_id} time#{self.n_aggr}: sub_samples={num_samples}')
+                weights_nums = len(trainRes.params.weights)
+                #logger.info(f'params {weights_nums}')
+                metrics = trainRes.metrics
+                logger.info(f'client#{client_id} time#{self.n_aggr}: metrics={metrics}')
+    
+            self.gModel = self.aggregate(trainRes_list)
+            self.modelDB[client_id]['global'] = self.gModel
+        return
 
+    def aggr_thread(self, num_rounds, client_id):
+        logger.info('--Thread: aggregation  --')
+        for rd in range(num_rounds):
+            #with self.aggr_event:
+            with self.train_events[client_id]:
+                #logger.info(f'aggr, {self.train_events[client_id]}  wait... when iter#{self._p}')
+                #self.aggr_event.wait()
+                self.train_events[client_id].wait_for(lambda: self.client_status[client_id] == Server.CSTATUS_LOCALREADY)
+                #logger.info(f'aggr, client#{client_id}, in local #{rd} epoch, global {self._p} epoch, activate, {self.train_events}')
+                logger.info(f'aggr, client#{client_id}, in local #{rd} epoch, global {self._p} epoch, activate')
+                #logger.info(f'aggr, {self.client_status}')
+                if self.client_status[client_id] == Server.CSTATUS_LOCALREADY:
+                        self.async_aggregate(client_id)
+                        #self.modelDB[client_id]['global'] = self.modelDB[client_id]['local']
+                        self.client_status[client_id] = Server.CSTATUS_GLOBALREADY
+                        #logger.info(f'iter#{self._p} notify+ client#{client_id}, {self.train_events[client_id]}, {self.client_status[client_id]}')
+                        self.train_events[client_id].notify()
+                        #logger.info(f'iter#{self._p} notify- client#{client_id}, {self.train_events[client_id]}, {self.client_status[client_id]}')
 
+    def train_thread(self, num_rounds, client_id, c_proxy, params, config):
+        logger.info(f'--Thread: train for {client_id} --')
+        for rd in range(num_rounds):
+            #logger.info(f'client#{client_id} prepare train in #{rd} epoch.')
+            with self.train_events[client_id]:
+                #logger.info(f'client#{client_id} get train lock in local #{rd} epoch, global {self._p} epoch.')
+                #if self.client_status[client_id] != Server.CSTATUS_INIT: 
+                if self.client_status[client_id] == Server.CSTATUS_LOCALREADY: 
+                    #logger.info(f'client#{client_id} wait {self.train_events[client_id]} in local #{rd} epoch, global {self._p} epoch...')
+                    self.train_events[client_id].wait_for(lambda: self.client_status[client_id] == Server.CSTATUS_GLOBALREADY)
+                    #use global params as local params
+                    #params = self.modelDB[client_id]['global'].params
+                    params = self.gModel
+                logger.info(f'>>>>>>>>>>>>>>>>>')
+                logger.info(f'client#{client_id} activate, start to train local model, in local #{rd} epoch, global {self._p} epoch')
+                #logger.info(f'client{client_id} iter#{rd}')
+                #logger.info(f'client{client_id} {self.client_status[client_id]}')
+                #logger.info(f'client{client_id} {args}')
+                #trainRes = c_proxy.train(args)
+                trainRes = c_proxy.train(TrainArgs(params, config))
+                #trainRes = self.dummy_test(client_id, rd)
+                logger.info(f'!!!>>>>>>>> client#{client_id} train done, in local #{rd} epoch, global {self._p} epoch')
+                self.modelDB[client_id]['local'] = trainRes#.params
+                self.numSamples[client_id] = trainRes.num_samples
+                self.client_status[client_id] = Server.CSTATUS_LOCALREADY
+                #logger.info(f'client{client_id} {trainRes}')
+                self._p += 1
+                logger.info(f'client#{client_id}, metrics={trainRes.metrics}, in local #{rd} epoch, global {self._p} epoch')
+                logger.info(f'<<<<<<<<<<<<<<<<<')
+                #logger.info(f'client#{client_id} notify+ aggr {self.aggr_event}, {self.train_events}, in local #{rd} epoch, global {self._p} epoch')
+                #self.aggr_event.notify()
+                self.train_events[client_id].notify()
+                #logger.info(f'client#{client_id} notify- aggr {self.aggr_event}, {self.train_events}, in local #{rd} epoch, global {self._p} epoch')
     
     def train(self, num_rounds=3):
         """
@@ -261,25 +370,54 @@ class Server(Msg_Handler):
         """
         params, configs = self.init_globel_model()
 
-        for rd in range(num_rounds):
-            #TODO
-            # Adding failure tolerence to allows aggregation on fewer returns of clients instead of every participanted clients.
-            with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
-                    futures = [
-                                executor.submit(
-                                    c_proxy.train,
-                                    (TrainArgs(params, configs[idx]))
-                                ) 
-                                for idx,(_,c_proxy) in enumerate(self.client_proxy_managers.items())
-                    ]
-                    trainRes_All = [ f.result() for  f in futures]
+        logger.info('\t========== START TRAINING ===========')
+        logger.info(f'aggregation_type {self.aggregation_type}')
+        logger.info(f'AlgoArch.ASYNC {AlgoArch.ASYNC}')
+        if self.aggregation_type == AlgoArch.ASYNC:
+            #logger.info(f'{self.client_proxy_managers}')
+            logger.info('== START Async TRAINING  ==')
+            threads = []
+            #threads.append(Thread(target=self.aggr_thread, args=(num_rounds,)))
+            #threads[-1].start()
+
+            #for client_id in range(self.num_clients_to_train):
+            for idx,(_,c_proxy) in enumerate(self.client_proxy_managers.items()):
+                #threads.append(Thread(target=self.train_thread, args=(num_rounds,idx, c_proxy, TrainArgs(params, configs[idx]))))
+                threads.append(Thread(target=self.aggr_thread, args=(num_rounds,idx, )))
+                threads.append(Thread(target=self.train_thread, args=(num_rounds,idx, c_proxy, params, configs[idx])))
+                #threads[-1].start()
+
+                client_id = idx
+                self.modelDB[client_id] = {}
+
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                """Waits for the threads to complete before moving on
+                   with the main script.
+                """
+                thread.join()
+        else:
+            logger.info('== START Sync TRAINING  ==')
+            for rd in range(num_rounds):
+                #TODO
+                # Adding failure tolerence to allows aggregation on fewer returns of clients instead of every participanted clients.
+                with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+                        futures = [
+                                    executor.submit(
+                                        c_proxy.train,
+                                        (TrainArgs(params, configs[idx]))
+                                    ) 
+                                    for idx,(_,c_proxy) in enumerate(self.client_proxy_managers.items())
+                        ]
+                        trainRes_All = [ f.result() for  f in futures]
 
 
-            logger.info(f'--TRAINING {rd} Round Finished --')
-            
-            params:Params = self.aggregate(trainRes_All)
+                logger.info(f'--TRAINING {rd} Round Finished --')
+                
+                params:Params = self.aggregate(trainRes_All)
 
-            #TODO evalution
+                #TODO evalution
 
         
         logger.info('== DONE TRAINING  ==')
