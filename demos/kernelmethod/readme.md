@@ -19,6 +19,7 @@ For server, the configure parameters include server ip, port and token, clientsâ
 For client, the configure parameters include mode (training or inference), ip address, port number,
 model token, data path, feature names and model_path, kernel mapping parameters scale and dimension, model save path.
 
+### Network topology demo 1: 3 clients with 1 coordinator 
 Run **demo_server.py** and **demo_client.py** and set the right configure file, e.g.
 ```python
 python ./demos/kernelmethod/demo_client.py -C ./demos/kernelmethod/config/config_train_client1.config
@@ -26,6 +27,15 @@ python ./demos/kernelmethod/demo_client.py -C ./demos/kernelmethod/config/config
 python ./demos/kernelmethod/demo_client.py -C ./demos/kernelmethod/config/config_train_client3.config
 python demos/kernelmethod/demo_server.py -C ./demos/kernelmethod/config/config_train_server.config
 ```
+
+### Network topology demo 2: 3 clients
+In this case one only needs to start 3 clients. For example, one can run the following code to start a training process:
+```python
+python ./demos/kernelmethod/demo_client.py -C ./demos/kernelmethod/config/config_train_client2.config
+python ./demos/kernelmethod/demo_client.py -C ./demos/kernelmethod/config/config_train_client3.config
+python ./demos/kernelmethod/demo_client.py -C ./demos/kernelmethod/config/config_train_client1.config -F T
+```
+Notice that client1 should be the last one to start.
 
 ## Run kernel method inference
 To run the kernel method inference example, the training process has to be conducted first.
