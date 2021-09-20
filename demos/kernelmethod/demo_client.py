@@ -13,27 +13,44 @@
 
 import argparse
 from configparser import ConfigParser
+import logging
 # add core's path
 import sys
 sys.path.append("./")
 #
 from client_kernelmethod import KernelMethodClient
+from server_kernelmethod import KernelMethodsServer
 from kernelmethod import KernelMappingParam
 #
 from core.entity.common.machineinfo import MachineInfo
 from core.grpc_comm.grpc_server import serve
 
 
-if __name__ == '__main__':
-
+def load_coordinator(cfg, args):
     parser = argparse.ArgumentParser()
-    # load config file
-    parser.add_argument('-C', '--config_path', type=str, required=True, help='path of the configuration file')
+    config_path = args.config_path
+    logging.info(args)
 
-    args = parser.parse_args()
+    client_ip = cfg.get('Coordinator', 'client_ip').split(',')
+    client_port = cfg.get('Coordinator', 'client_port').split(',')
+    client_token = cfg.get('Coordinator', 'client_token').split(',')
 
-    cfg = ConfigParser()
-    cfg.read(args.config_path)
+    clients_info = []
+    for i in range(len(client_ip)):
+        clients_info.append(MachineInfo(ip=client_ip[i],
+                                        port=client_port[i],
+                                        token=client_token[i]))
+
+    server_info = MachineInfo(ip=cfg.get('Coordinator', 'server_ip'),
+                              port=cfg.get('Coordinator', 'server_port'),
+                              token=cfg.get('Coordinator', 'server_token'))
+
+    server = KernelMethodsServer(server_info)
+    server.clients_info = clients_info
+    server.clients_token = client_token
+    return server
+
+def load_client(cfg, args):
 
     mode = cfg.get('Machine', 'mode')
 
@@ -43,6 +60,7 @@ if __name__ == '__main__':
     client = KernelMethodClient(client_info)
 
     data_path = cfg.get('Data', 'data_path')
+
     if mode == 'train':
         features = cfg.get('Data', 'features').split(',')
         if cfg.has_option('Data', 'label'):
@@ -65,5 +83,45 @@ if __name__ == '__main__':
     elif mode == 'inference':
         client.load_data(data_path=data_path, feature_names=cfg.get('Data', 'features').split(','))
         client.model = client.load_model(model_path=cfg.get('Model', 'model_path'))
+    else:
+        raise ValueError("Invalid mode!")
+    return client
 
-    serve(client)
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    # load config file
+    parser.add_argument('-C', '--config_path', type=str, required=True, help='path of the configuration file')
+    parser.add_argument('-F', '--flag_network', type=str, required=False, default="F", help='flag to use new network api')
+    
+    args = parser.parse_args()
+
+    cfg = ConfigParser()
+    cfg.read(args.config_path)
+
+    client = load_client(cfg, args)
+    
+    if ("flag_network" not in args) or (args.flag_network == "F"):
+        # old api framework
+        serve(client)
+    elif args.flag_network == "T":
+        # new api framework
+        mode = cfg.get('Machine', 'mode')
+        if mode == 'train':
+            # serve
+            if cfg.has_option('Data', 'label'):
+                # create coordinator
+                coordinator = load_coordinator(cfg, args)
+                client.load_coordinator(coordinator)
+                init_phase = "train_init"
+                client._exp_training_pipeline(init_phase, client.coordinator.clients_info)
+            else:
+                serve(client)
+        elif mode == 'inference':
+            raise NotImplementedError("Not implemented yet!")
+            #client.load_data(data_path=data_path, feature_names=cfg.get('Data', 'features').split(','))
+            #client.model = client.load_model(model_path=cfg.get('Model', 'model_path'))
+    else:
+        raise ValueError("Invalid flag network")
+

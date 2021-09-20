@@ -30,7 +30,8 @@ class ClientError(ValueError):
 
 class KernelMethodClient(Client):
     def __init__(self, machine_info: MachineInfo):
-        super().__init__()
+        # pass arguments
+        super().__init__(machine_info)
         self.algorithm_type = 'kernelmethod'
         self.source_data = None
         self.response = None
