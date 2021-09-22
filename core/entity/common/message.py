@@ -47,6 +47,9 @@ class ResponseMessage:
         self.body = deserialize_body(self.body)
         return None
 
+    def __repr__(self):
+        return f"client: {self.client_info}, server: {self.server_info}, body_content: {self.body.keys()}, Img_ID: {self.body['_id']}, phase_id: {self.phase_id}"
+
 
 class RequestMessage:
     """
@@ -55,8 +58,8 @@ class RequestMessage:
     def __init__(self, sender: MachineInfo, receiver: MachineInfo, body: Dict, phase_id: str):
         self.phase_id = phase_id
         self.body = body
-        self.server_info = sender
-        self.client_info = receiver
+        self.server_info = sender  # Algorithm Server terminal
+        self.client_info = receiver # Algorithm Client terminal
     
     def copy(self):
         return RequestMessage(self.server_info,
@@ -77,6 +80,9 @@ class RequestMessage:
         """
         self.body = deserialize_body(self.body)
         return None
+
+    def __repr__(self):
+        return f"client: {self.client_info}, server: {self.server_info}, body_content: {self.body.keys()}, Img_ID: {self.body['_id']}, phase_id: {self.phase_id}"
 
 
 def serialize_body(body: Dict):

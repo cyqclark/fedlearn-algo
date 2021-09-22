@@ -13,12 +13,14 @@
 
 # This file is the class template theABC JDT client
 from core.entity.common.message import RequestMessage, ResponseMessage
-from core.grpc_comm.grpc_converter import grpc_msg_to_common_msg, common_msg_to_grpc_msg
-from core.proto.transmission_pb2 import ReqResMessage
 from core.grpc_comm.grpc_client import send_request
+from core.grpc_comm.grpc_converter import grpc_msg_to_common_msg, common_msg_to_grpc_msg
+from core.grpc_comm.grpc_node import GRPCNode
+from core.grpc_comm.grpc_servicer import GRPCServicer
+from core.proto.transmission_pb2 import ReqResMessage
 from core.proto.transmission_pb2_grpc import TransmissionServicer
-from abc import abstractmethod
 
+from abc import abstractmethod
 from typing import Dict
 import pickle
 
@@ -32,6 +34,10 @@ class Client(TransmissionServicer):
     """
     def __init__(self, client_info=None):
         self._client_info = client_info
+
+    def __init__(self):
+        self.grpc_servicer = GRPCServicer()
+        self.grpc_node = GRPCNode()
 
     @property
     def dict_functions(self):
@@ -200,3 +206,6 @@ class Client(TransmissionServicer):
         # Training process finish. Send finish signal to all clients.
         requests = self.coordinator.post_training_session()
         responses = self._exp_call_grpc_client(requests, is_parallel)
+
+    def start_serve_termination_block(self):
+        self.grpc_node.start_serve_termination_block(self.grpc_servicer)

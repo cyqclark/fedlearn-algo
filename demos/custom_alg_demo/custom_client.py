@@ -19,7 +19,6 @@ sys.path.append(os.getcwd())
 from core.client.client import Client
 from core.entity.common.message import RequestMessage, ResponseMessage
 from core.entity.common.machineinfo import MachineInfo
-from core.grpc_comm.grpc_server import serve
 from demos.custom_alg_demo.utils import Symbol
 import argparse
 import socket
@@ -65,10 +64,16 @@ class CustomDemoClient(Client):
     """
 
     def __init__(self, machine_info: MachineInfo):
+        # init grpc_node and grpc_servicer
+        super(CustomDemoClient, self).__init__()
+
         self.machine_info = machine_info
         self.is_active = False
         self.dict_functions = {}
         self.function_register()
+
+        self.grpc_node.set_machine_info(self.machine_info)
+        self.grpc_servicer.set_msg_processor(self)
 
     def function_register(self):
         """ training and inference functions registration.
@@ -274,5 +279,7 @@ if __name__ == '__main__':
 
     # training
     client.load_data(data_path="no path, just testing", feature_names=["no feature name, just testing"])
-    # create gRPC service
-    serve(client)
+    # # create gRPC service
+    # serve(client)
+
+    client.start_serve_termination_block()
