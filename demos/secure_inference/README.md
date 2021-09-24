@@ -1,21 +1,28 @@
-# Secure inference use fedlearn-algo framework, with SphereFace as an example
+# Secure inference use fedlearn-algo framework, with [SphereFace](https://arxiv.org/abs/1704.08063) as an example
 
 ## 1. performance overview
 
-Table below is a comparison of the performance with different implementations. Numbers are tested on MacBook Pro.
+Figure below is the development history of secure inference with neural network. 
+
+![Optional Text](./docs/speed_ladder.png)
+
+Table below is a comparison of the performance with different implementations. Numbers are tested with a single MacBook Pro, without consider data transfer cost and network latency.
 
 | *Version* | *TPS* | *Latency* |
 |-------------------------|-------------------------|-------------------------|
-| Insecure | 9.09 |  0.11 |
+| Insecure | 11.11 |  0.09 |
 | Secure_Sync | 0.87 | 2.31  |
 | Secure_Async | 0.96 | 2.07 | 
 
+Furthermore, it is estimated that there will be 20MB of data transfer in forward passing a single image. 
+Depending on different network environment, the time cost for data transfer could vary.
+
 ## 2. How to run the code
-We will be using the current directory as the working directory for all experiments. Before run any code, we will need to unzip the LFW dataset from `./data/LFW`
+Unzip `FaceRecognition.zip` in the `federated-learning-grpc/data` folder to obtain the pre-processed [LFW dataset](http://vis-www.cs.umass.edu/lfw/) and the public available SphereFace [model weights](https://github.com/clcarwin/sphereface_pytorch/tree/master/model).
 
 ### 2.1 Insecure inference
 
-The model is adopted from [sphereface](https://github.com/clcarwin/sphereface_pytorch). A visualization of its architecture can be seen from [here](http://ethereon.github.io/netscope/#/gist/20f6ddf70a35dec5019a539a502bccc5).
+The model is adopted from [open-sourced sphereface](https://github.com/clcarwin/sphereface_pytorch/blob/master/net_sphere.py). A visualization of its architecture can be seen from [here](http://ethereon.github.io/netscope/#/gist/20f6ddf70a35dec5019a539a502bccc5).
 
 ```
 python insecure/run.py
@@ -58,3 +65,8 @@ Note that priority queue fits the best in building the message queue, due to the
 ## 4. Experimental
 Transferring float16 instead of float32 will increase the error rate from a magnitude of 10^-6 to around 5%, with a benefit of cutting the data transfer time to half.
 This functionality can be achieved by modifying the `DTYPE` variable in `./utils/data_transfer.py`.
+
+[comment]: <> (## 5. References)
+
+[comment]: <> (![Delphi]&#40;&#41;)
+

@@ -34,7 +34,7 @@ def get_cosdist(f1: np.ndarray, f2: np.ndarray):
         f1 = np.asarray(f1)
     if isinstance(f2, list):
         f2 = np.asarray(f2)
-    # print(f1.shape, f2.shape)
+    print(f1.shape, f2.shape)
     return f1.dot(f2) / ( np.linalg.norm(f1) * np.linalg.norm(f2) + 1e-5)
 
 
@@ -43,7 +43,7 @@ class Insecure_Client(object):
 
     def __init__(self):
         self.torch_model = sphere20a(feature=True).cpu()
-        pretrained_weights = torch.load('./insecure/sphere20a_20171020.pth')
+        pretrained_weights = torch.load('../../data/FaceRecognition/sphere20a_20171020.pth')
         pretrained_weights_for_inference = {k:v for k, v in pretrained_weights.items() if 'fc6' not in k}
         self.torch_model.load_state_dict(pretrained_weights_for_inference )
 
@@ -92,13 +92,6 @@ class Secure_Client(Server):
         self.compute_graph_server = {int(k): v for k, v in self.compute_graph_server.items()}  # bug in orjson
         self.last_layer_id = max(self.compute_graph_server.keys())
         self.sps = SP_Client(self.compute_graph_server, shard=2)
-
-    # def function_register(self):
-    #     # should be done after self.inference_int
-    #     self.dict_functions["init"] = self.init_inference_control
-    #     for i in range(50):
-    #         self.dict_functions[f"layer_{i}"] = self.sps.get_layer(i)
-
 
     def get_next_phase(self, phase: str) -> str:
         """
@@ -182,7 +175,7 @@ class Secure_Client(Server):
 
 def get_input(n=1000):
 
-    with open('../../data/LFW/pairs.txt') as f:
+    with open('../../data/FaceRecognition/LFW/pairs.txt') as f:
         pairs_lines = f.readlines()[1:]
 
     img_label = []
@@ -198,8 +191,8 @@ def get_input(n=1000):
             name1 = p[0]+'/'+p[0]+'_'+'{:04}.jpg'.format(int(p[1]))
             name2 = p[2]+'/'+p[2]+'_'+'{:04}.jpg'.format(int(p[3]))
 
-        img1 = cv2.imread("../../data/LFW/lfw_processed/"+name1)
-        img2 = cv2.imread("../../data/LFW/lfw_processed/"+name2)
+        img1 = cv2.imread("../../data/FaceRecognition/LFW/lfw_processed/"+name1)
+        img2 = cv2.imread("../../data/FaceRecognition/LFW/lfw_processed/"+name2)
         img1_normalized = (img1.transpose(2, 0, 1)-127.5)/128.0
         img2_normalized = (img2.transpose(2, 0, 1)-127.5)/128.0
 

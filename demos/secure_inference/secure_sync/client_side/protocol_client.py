@@ -13,16 +13,6 @@ class Secure_Layer(object):
         pass
 
     def server_call(self, _x):
-        # t0 = time.time()
-        # msg, _ = serialize({'_x': _x}, **self.config)
-        # print('server_call_serialize', time.time() - t0)
-        # t0 = time.time()
-        # res_msg = requests.post(self.secure_inference_url, data=msg) #
-        # print('server_call', time.time() - t0)
-        # t0 = time.time()
-        # res_dict = deserialize(res_msg.text)
-        # print('server_call_deserialize', time.time() - t0)
-        # return res_dict
         pass
 
     def postp(self, msg_dict):
@@ -55,13 +45,9 @@ class Secure_Linear(Secure_Layer):
             # for image format:
             # x.shape = bs, ch, w, h
             bs, ch, w, h = x.shape
-            #p = np.ones((bs, self.shard, 1, 1, 1)) 
             p = np.random.randn(bs, self.shard, 1, 1, 1)#TODO: double check here
-            # \sum _r = 0 across shards. todo: check the case when linear_n = 1
             q = 100 * np.random.randn(bs, self.shard, ch, w, h)
-            #q = 10 * np.zeros((bs, self.shard, ch, w, h))
-            q[:, -1:] = - np.sum(q[:, :-1], 1, keepdims=1) 
-            # m * (x+r) --> m*x + m*r
+            q[:, -1:] = - np.sum(q[:, :-1], 1, keepdims=1)
             _x = np.tile( np.expand_dims(x, 1), (1,self.shard,1,1,1) )
             perturbed_x = p * ( _x + q )
             self.I = np.reciprocal(p) / self.shard#np.sum(p, 1, keepdims=1)
@@ -69,10 +55,8 @@ class Secure_Linear(Secure_Layer):
         elif len(x.shape) == 2:
             bs, ch = x.shape
             p = np.random.randn(bs, self.shard, 1)
-            #p = np.ones((bs, self.shard, 1))#TODO: double check here
             q = 10 * np.random.randn(bs, self.shard, ch)
-            #q = np.zeros_like(q)
-            q[:, -1:] = - np.sum(q[:, :-1], 1, keepdims=1) 
+            q[:, -1:] = - np.sum(q[:, :-1], 1, keepdims=1)
 
             _x = np.tile( np.expand_dims(x, 1), (1,self.shard,1) )
             perturbed_x = np.tile(p, (1,1,ch)) * ( _x + q )
@@ -85,7 +69,6 @@ class Secure_Linear(Secure_Layer):
 
     def postp(self, res_dict):
         # get input activation
-        # print('postp', res_dict.keys())
         _z, _b = np.asarray(res_dict['_z']), np.asarray(res_dict['_b'])
         # assemble result 
         if len(_z.shape) == 5:
@@ -159,23 +142,6 @@ class Secure_Reshape(Secure_Layer):
     def postp(self, res_dict):
         z = np.asarray(res_dict['y'])
         return  z / self.p.reshape(*z.shape)
-
- 
-# class Secure_Cos(Secure_Layer):
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.shard = self.config['shard']
-#
-#
-#     def do_inference_cos(self):
-#         # get input activation
-#         input_layer_id = self.compute_graph[self.cur_layer_id]['input']
-#         x = self.activation[input_layer_id] # should be a batch of 2 iamges
-#         f1, f2 = x[0], x[1]
-#         z = f1.dot(f2) / ( np.linalg.norm(f1) * np.linalg.norm(f2) + 1e-5)
-#         # call SMPC for secure comparison
-#         return z > THRESHOLD
 
 
 class SP_Client(object):

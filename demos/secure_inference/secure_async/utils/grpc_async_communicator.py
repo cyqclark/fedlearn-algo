@@ -118,8 +118,7 @@ class AsyncGRPCCommunicator(object):
 
     def grpc_message_processing(self):
         while self.grpc_node.is_serve_running:
-            time.sleep(0.0001) # check every 1 ms
-            # time.sleep(0.1) # check every 1 ms
+            time.sleep(0.0001) # check every 0.1 ms
             if self.common_req_msg_q.size() > 0:
                 lock.acquire()
 
@@ -127,20 +126,10 @@ class AsyncGRPCCommunicator(object):
 
                 lock.release()
 
-                # print("receiving msg, %s, %s, %s" % (str(common_req_msg.server_info),
-                #                                      str(common_req_msg.client_info),
-                #                                      str(common_req_msg.phase_id)))
                 common_res_msg = self.common_req_msg_processor.process_queue(common_req_msg)
-                # print("responding msg, %s, %s, %s" % (str(common_res_msg.server_info),
-                #                                      str(common_res_msg.client_info),
-                #                                      str(common_res_msg.phase_id)))
-                # from demos.secure_inference.secure_async.utils.data_transfer import deserialize
-                # data = deserialize(common_res_msg.body['data'])
-                # for k, v in data.items():
-                #     print('kv pair: ', k, v.flatten()[:10])
 
                 if common_res_msg.phase_id == "finish":
-                    print("get a finish phase, break the message receiving loop", common_res_msg.body['_id'], common_res_msg.body['dist'], common_res_msg.body['pred'], time.time())
+                    print("image id: ", common_res_msg.body['_id'], "finished secure inference", " similarity distance: ", common_res_msg.body['dist'], " prediction: ", common_res_msg.body['pred'], " time stamp: ", time.time())
                     # break
                 else:
                     common_req_msg_2 = RequestMessage(sender=common_res_msg.server_info,

@@ -34,7 +34,7 @@ class Insecure_Client(object):
 
     def __init__(self):
         self.torch_model = sphere20a(feature=True).cpu()
-        pretrained_weights = torch.load('./insecure/sphere20a_20171020.pth')
+        pretrained_weights = torch.load('../../data/FaceRecognition/sphere20a_20171020.pth')
         pretrained_weights_for_inference = {k:v for k, v in pretrained_weights.items() if 'fc6' not in k}
         self.torch_model.load_state_dict(pretrained_weights_for_inference )
 
@@ -49,7 +49,7 @@ class Insecure_Client(object):
 
 def get_input(n=1000):
 
-    with open('../../data/LFW/pairs.txt') as f:
+    with open('../../data/FaceRecognition/LFW/pairs.txt') as f:
         pairs_lines = f.readlines()[1:]
 
     img_label = []
@@ -65,8 +65,8 @@ def get_input(n=1000):
             name1 = p[0]+'/'+p[0]+'_'+'{:04}.jpg'.format(int(p[1]))
             name2 = p[2]+'/'+p[2]+'_'+'{:04}.jpg'.format(int(p[3]))
 
-        img1 = cv2.imread("../../data/LFW/lfw_processed/"+name1)
-        img2 = cv2.imread("../../data/LFW/lfw_processed/"+name2)
+        img1 = cv2.imread("../../data/FaceRecognition/LFW/lfw_processed/"+name1)
+        img2 = cv2.imread("../../data/FaceRecognition/LFW/lfw_processed/"+name2)
         img1_normalized = (img1.transpose(2, 0, 1)-127.5)/128.0
         img2_normalized = (img2.transpose(2, 0, 1)-127.5)/128.0
 
@@ -77,7 +77,7 @@ def get_input(n=1000):
 
 if __name__ == '__main__':
     insecure_client = Insecure_Client()
-    raw_img_set = get_input(1)  #
+    raw_img_set = get_input(20)  #
     correct = 0
     for i, (raw_img, sameflag) in enumerate(raw_img_set):
         ref = insecure_client.inference(raw_img)
