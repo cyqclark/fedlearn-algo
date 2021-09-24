@@ -57,6 +57,7 @@ python secure_async/client_side/run_client_async.py
 ## 3. Workflow of our secure inference
 
 ### 3.1 async version
+
 ![Optional Text](./docs/workflow.png)
 
 ### 3.2 sync version
