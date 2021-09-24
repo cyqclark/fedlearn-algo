@@ -1,9 +1,7 @@
 __doc__ = "support functions"
 
-import json
 import orjson
 import numpy as np
-#import utils.HE.riac as RIAC
 
 
 DTYPE = 'float32'
@@ -61,84 +59,3 @@ def deserialize(msg, *args, **kwargs):
             # print('des component: ', _name)
             data_dict[_name] = int(_v)
     return data_dict
-
-def serialize_v1(np_tensor, *args, **kwargs):
-   d = {
-           'data': np_tensor.tolist(),
-           'shape': np_tensor.shape,
-       }
-   d.update(kwargs)
-   return orjson.dumps(d, option=orjson.OPT_SERIALIZE_NUMPY), None
-
-def deserialize_v1(msg, *args, **kwargs):
-    msg_dict = orjson.loads(msg)
-    data = np.asarray(msg_dict['data']).astype(DTYPE).reshape(msg_dict['shape'])
-    del msg_dict['data']
-    del msg_dict['shape']
-    return data, msg_dict 
-
-   
-#def serialize_v0(item, **kwargs):
-#    #header = [str(v) for v in RIAC.get_size(item)]
-#
-#    msg_body = []
-#    data_type = -1
-#    data = np.asarray(item)
-#    item_size = data.shape 
-#    data = data.flatten().tolist()
-#    for x in data:
-#        if isinstance(x, (int, float)):
-#            msg_body.append( str(x) )
-#            if data_type == -1:
-#                data_type = 0
-#            elif data_type != 0:
-#                raise NotImplementedError(f"Only support serialization of a single data type yet!")
-#        elif isinstance(x, RIAC.IterativeAffineCiphertext):
-#            msg_body.append( x.serialize_string() )
-#            if data_type == -1:
-#                data_type = 1
-#            elif data_type != 1:
-#                raise NotImplementedError(f"Only support serialization of a single data type yet!")
-#        else:
-#            raise NotImplementedError(f"Not implemented yet for data type {type(x)}!")
-#
-#    kwargs['data_type'] = data_type
-#    kwargs['data_shape'] = item_size
-#    kwargs['data'] = msg_body 
-#    return orjson.dumps(kwargs), data_type
-#
-#
-#def deserialize_v0(msg) -> np.ndarray:
-#    """
-#    Deserialize a mssage, could be an array of RIAC encrypted objects or plaintext objects
-#    """
-#    msg_dict = orjson.loads(msg)
-#    _type = msg_dict['data_type']
-#    _shape = msg_dict['data_shape']
-#    data = []
-#    for x in msg_dict['data']:
-#        if _type == 0:
-#            data.append( float(x) )
-#        elif _type == 1:
-#            data.append( RIAC.IterativeAffineCiphertext.deserialize_string(x) )
-#        else:
-#            raise NotImplementedError(f"Not implemented yet for data type {_type}!")
-#    data = np.asarray(data).reshape(_shape).astype('float32')
-#    del msg_dict['data']
-#    return data, msg_dict 
-#
-#
-#if __name__ == "__main__":
-#    # testing code
-#    x = -1 * np.load('/app/src/python/client_side/data_face.npy').astype('float32')[0]
-#    key = RIAC.generate_keypair()
-#    enc_x = RIAC.encrypt(key, x)
-#
-#    ser_x, _= serialize(enc_x, online=1)
-#    _x, dd = deserialize(ser_x)
-#
-#    y = RIAC.decrypt(key, _x)
-#    print('x: ', np.asarray(x).flatten()[:10])
-#    print('y: ', np.asarray(y).flatten()[:10])
-#    print('diff: ', np.max(np.abs(np.asarray(x) - np.asarray(y))))
-#            

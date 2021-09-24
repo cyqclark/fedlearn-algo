@@ -47,7 +47,6 @@ def get_cosdist(f1: np.ndarray, f2: np.ndarray):
         f1 = np.asarray(f1)
     if isinstance(f2, list):
         f2 = np.asarray(f2)
-    # print(f1.shape, f2.shape)
     return f1.dot(f2) / ( np.linalg.norm(f1) * np.linalg.norm(f2) + 1e-5)
 
 
@@ -144,10 +143,9 @@ class Client(object):
 
     def get_input(self, n=1):
 
-        with open('../../data/LFW/pairs.txt') as f:
+        with open('../../data/FaceRecognition/LFW/pairs.txt') as f:
             pairs_lines = f.readlines()[290:]
 
-        img_label = []
         for i in range(n):
             p = pairs_lines[i].replace('\n','').split('\t')
 
@@ -160,14 +158,12 @@ class Client(object):
                 name1 = p[0]+'/'+p[0]+'_'+'{:04}.jpg'.format(int(p[1]))
                 name2 = p[2]+'/'+p[2]+'_'+'{:04}.jpg'.format(int(p[3]))
 
-            img1 = cv2.imread("../../data/LFW/lfw_processed/"+name1)
-            img2 = cv2.imread("../../data/LFW/lfw_processed/"+name2)
+            img1 = cv2.imread("../../data/FaceRecognition/LFW/lfw_processed/"+name1)
+            img2 = cv2.imread("../../data/FaceRecognition/LFW/lfw_processed/"+name2)
             img1_normalized = (img1.transpose(2, 0, 1)-127.5)/128.0
             img2_normalized = (img2.transpose(2, 0, 1)-127.5)/128.0
 
             yield str(uuid.uuid4()), np.stack([img1_normalized, img2_normalized], 0).astype('float32'), sameflag
-            # img_label.append( [uuid.uuid4(), np.stack([img1_normalized, img2_normalized], 0).astype('float32'), sameflag] )
-        # return img_label
 
 if __name__ == '__main__':
     import time
@@ -181,7 +177,7 @@ if __name__ == '__main__':
     t0 = time.time()
     print( 'current time: ', time.time())
     for _id, img, label in client.get_input(20):
-        print('sending image id:', _id)
+        print('sending image id:', _id, " time stamp: ", time.time())
         init_req = client.get_init_req({'_id': _id, 'img': img})
         client_async.send_message(init_req)
     # stop

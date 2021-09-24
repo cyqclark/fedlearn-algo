@@ -212,25 +212,6 @@ class Secure_Res(Secure_Layer):
         super().__init__(layer_id, layer_name, input_layer, *args, **kwargs)
         self.type = 'res'
 
-#    def prep(self, data_dict):
-#        _x = data_dict['_x']
-#        layer_id = data_dict['cur_layer_id']
-#
-#        for i, layer_i in enumerate(self.compute_graph[layer_id]['input']):
-#            bs = _x[i].shape[0]
-#            if self.compute_graph[layer_i]["_type"] == "RES":
-#                _rand_t = self.rand_t[layer_i][:bs]
-#            else:
-#                _rand_t = self.rand_t[layer_i]
-#
-#            if i == 0:
-#                z = _x[i] / _rand_t 
-#            else:
-#                z += _x[i] / _rand_t 
-#
-#        new_shape = [1]*len(z.shape)
-#        new_shape[0] = z.shape[0]
-
     def compute(self, _x):
         return {"y": np.sum(_x, 0, keepdims=0)}
 
@@ -247,11 +228,6 @@ class Secure_Res(Secure_Layer):
         _shape[0] = y_dict['y'].shape[0]
         z = y_dict["y"] * self.rand_t[_id].reshape(*_shape)
         return {'z': z}
-
-#    def cos_layer(self, data_dict):
-#        layer_id = data_dict['cur_layer_id']
-#        return {}
- 
 
 class SP_Server(object):
 

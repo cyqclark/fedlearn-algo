@@ -99,8 +99,6 @@ class Secure_Conv(Secure_Layer):
         return {'_z': _z, '_b':_b}
 
 
-
-
 class Secure_Linear(Secure_Layer):
 
     def __init__(self, layer_id, layer_name, input_layer, *args, **kwargs):
@@ -142,17 +140,6 @@ class Secure_Flatten(Secure_Layer):
         super().__init__(layer_id, layer_name, input_layer, *args, **kwargs)
         self.type = 'flatten'
 
-#    def prep(self, _x):
-#        layer_id = data_dict['cur_layer_id']
-#
-#        print('xshape', _x.shape)
-#        bs, ch, w, h = _x.shape
-#        prev_rand_t = self.rand_t[layer_id-1]
-#        input_type = self.compute_graph[layer_id-1]['_type']
-#        if input_type == 'RES':
-#            prev_rand_t = prev_rand_t[:bs]
-#        _x = _x / prev_rand_t
-
     def compute(self, x):
         return {'x': x}
 
@@ -191,7 +178,6 @@ class Secure_ReLU(Secure_Layer):
             for i in range(1, len(_shape), 1):
                 _shape[i] = 1
             self.rand_t = np.random.rand(*_shape).astype('float32')
-        #bs, ch_in, w_in, h_in = _x.shape # consider for 2D inputs as well
         z = y_dict['y'] * self.rand_t
         return {'z': z}
 
@@ -202,30 +188,11 @@ class Secure_Res(Secure_Layer):
         super().__init__(layer_id, layer_name, input_layer, *args, **kwargs)
         self.type = 'res'
 
-#    def prep(self, data_dict):
-#        _x = data_dict['_x']
-#        layer_id = data_dict['cur_layer_id']
-#
-#        for i, layer_i in enumerate(self.compute_graph[layer_id]['input']):
-#            bs = _x[i].shape[0]
-#            if self.compute_graph[layer_i]["_type"] == "RES":
-#                _rand_t = self.rand_t[layer_i][:bs]
-#            else:
-#                _rand_t = self.rand_t[layer_i]
-#
-#            if i == 0:
-#                z = _x[i] / _rand_t 
-#            else:
-#                z += _x[i] / _rand_t 
-#
-#        new_shape = [1]*len(z.shape)
-#        new_shape[0] = z.shape[0]
 
     def compute(self, _x):
         return {"y": np.sum(_x, 0, keepdims=0)}
 
     def postp(self, y_dict):
-        # rand_t.shape = (bs,)
 
         if self.rand_t is None:
             bs = y_dict['y'].shape[0]
@@ -236,10 +203,6 @@ class Secure_Res(Secure_Layer):
         z = y_dict["y"] * self.rand_t.reshape(*_shape)
         return {'z': z}
 
-#    def cos_layer(self, data_dict):
-#        layer_id = data_dict['cur_layer_id']
-#        return {}
- 
 
 class SP_Server(object):
 

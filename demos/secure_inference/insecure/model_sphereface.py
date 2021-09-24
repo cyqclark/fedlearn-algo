@@ -153,7 +153,6 @@ class sphere20a(nn.Module):
 
 
     def forward(self, x):
-        return self.conv1_1(x)
         x = self.relu1_1(self.conv1_1(x))
         x = x + self.relu1_3(self.conv1_3(self.relu1_2(self.conv1_2(x))))
 

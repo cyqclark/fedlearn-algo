@@ -13,7 +13,7 @@
 
 # This file is the class template theABC JDT client
 from core.entity.common.message import RequestMessage, ResponseMessage
-from core.grpc_comm.grpc_client import send_request
+from core.grpc_comm.grpc_node import send_request
 from core.grpc_comm.grpc_converter import grpc_msg_to_common_msg, common_msg_to_grpc_msg
 from core.grpc_comm.grpc_node import GRPCNode
 from core.grpc_comm.grpc_servicer import GRPCServicer

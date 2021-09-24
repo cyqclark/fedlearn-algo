@@ -58,10 +58,8 @@ class Secure_Linear(Secure_Layer):
             # for image format:
             # x.shape = bs, ch, w, h
             bs, ch, w, h = x.shape
-            #p = np.ones((bs, self.shard, 1, 1, 1)) 
             self.p[img_id] = np.random.randn(bs, self.shard, 1, 1, 1)
             self.q[img_id] = 100 * np.random.randn(bs, self.shard, ch, w, h)
-            #q = 10 * np.zeros((bs, self.shard, ch, w, h))
             self.q[img_id][:, -1:] = - np.sum(self.q[img_id][:, :-1], 1, keepdims=1)
             # m * (x+r) --> m*x + m*r
             _x = np.tile( np.expand_dims(x, 1), (1,self.shard,1,1,1) )
@@ -72,7 +70,6 @@ class Secure_Linear(Secure_Layer):
             bs, ch = x.shape
             self.p[img_id] = np.random.randn(bs, self.shard, 1)
             self.q[img_id] = 10 * np.random.randn(bs, self.shard, ch)
-            #q = np.zeros_like(q)
             self.q[img_id][:, -1:] = - np.sum(self.q[img_id][:, :-1], 1, keepdims=1)
 
             _x = np.tile( np.expand_dims(x, 1), (1,self.shard,1) )
@@ -86,7 +83,6 @@ class Secure_Linear(Secure_Layer):
 
     def postp(self, res_dict, img_id):
         # get input activation
-        # print('postp', res_dict.keys())
         _z, _b = np.asarray(res_dict['_z']), np.asarray(res_dict['_b'])
         # assemble result 
         if len(_z.shape) == 5:

@@ -22,18 +22,10 @@ class Secure_Server(Client):
     def __init__(self, machine_info: MachineInfo):
         super().__init__()
         self.machine_info = machine_info
-        # self.clients_info = None
-        # self.max_iter = 1000
-        # self.iter = 0
-        # self.sample_num = 0
-        # self.clients_token = []
-        # self.prediction = []
         self.dict_functions = {}
-        # self.inference_communication_count = 0
-        # self.machine_ind = 0
 
         torch_model = sphere20a(feature=True)
-        pretrained_weights = torch.load('./insecure/sphere20a_20171020.pth')  # TODO: make it as input config
+        pretrained_weights = torch.load('../../data/FaceRecognition/sphere20a_20171020.pth')  # TODO: make it as input config
         pretrained_weights_for_inference = {k: v for k, v in pretrained_weights.items() if 'fc6' not in k}
         torch_model.load_state_dict(pretrained_weights_for_inference)
         self.compute_graph, self.parameters = self.load_from_torch_model(torch_model)
