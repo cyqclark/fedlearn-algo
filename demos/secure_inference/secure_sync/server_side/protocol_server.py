@@ -58,7 +58,7 @@ class Secure_Conv(Secure_Layer):
         super().__init__(layer_id, layer_name, input_layer, *args, **kwargs)
 
         self.type = 'conv'
-        self.weight = torch.tensor(kwargs["weight"])#, device="cuda:0")
+        self.weight = torch.tensor(kwargs["weight"])
         self.bias = kwargs["bias"]
         self.stride = self.kwargs["stride"]
         self.padding = self.kwargs["pad"]
@@ -68,7 +68,7 @@ class Secure_Conv(Secure_Layer):
         bs, shard, ch_in, w_in, h_in = _x.shape
         _v = _x.reshape(bs*shard, ch_in, w_in, h_in)
         #tt0=time.time()
-        tensor_v = torch.tensor(_v)#, device="cuda:0")
+        tensor_v = torch.tensor(_v)
         #print('tensor convert rt: ', time.time()-tt0)
 
         #t0=time.time()
@@ -81,7 +81,7 @@ class Secure_Conv(Secure_Layer):
         return {'av' : av}
 
     def postp(self, y_dict):
-        # rand_t.shape = (bs,)
+        # post processing
 
         bs, shard, ch_out, w_out, h_out = y_dict['av'].shape
         if self.rand_t is None:
@@ -104,7 +104,7 @@ class Secure_Linear(Secure_Layer):
     def __init__(self, layer_id, layer_name, input_layer, *args, **kwargs):
         super().__init__(layer_id, layer_name, input_layer, *args, **kwargs)
         self.type = 'linear'
-        self.weight = torch.tensor(kwargs["weight"])#, device="cuda:0")
+        self.weight = torch.tensor(kwargs["weight"])
         self.bias = kwargs["bias"]
 
 
@@ -112,7 +112,7 @@ class Secure_Linear(Secure_Layer):
         bs, shard, ch_in = _x.shape
         _v = _x.reshape(bs*shard, ch_in)
 
-        tensor_v = torch.tensor(_v)#, device="cuda:0")
+        tensor_v = torch.tensor(_v)
         av = torch.nn.functional.linear(tensor_v, self.weight, bias=None)
         av = av.cpu().numpy() # (bs*shard, ch_out)
         _, ch_out = av.shape
@@ -120,7 +120,7 @@ class Secure_Linear(Secure_Layer):
         return {"av": av}
 
     def postp(self, y_dict):
-        # rand_t.shape = (bs,)
+        # post processing
 
         bs, shard, ch_out = y_dict['av'].shape
         if self.rand_t is None:
@@ -144,7 +144,7 @@ class Secure_Flatten(Secure_Layer):
         return {'x': x}
 
     def postp(self, y_dict):
-        # rand_t.shape = (bs,)
+        # post processing
 
         if self.rand_t is None:
             bs = y_dict['x'].shape[0]
@@ -163,8 +163,8 @@ class Secure_ReLU(Secure_Layer):
         self.p = torch.tensor(kwargs["weight"])
 
     def compute(self, _x):
-        #if self.input_layer.type in ['conv', 'linear']: 
-        print(_x.shape, self.p.shape)
+        print("_x.shape=" + str(_x.shape))
+        print("p.shape=" + str(self.p.shape))
         tensor_x = torch.tensor(_x)
         y = torch.nn.functional.prelu(tensor_x, self.p)
         y = y.cpu().numpy()
