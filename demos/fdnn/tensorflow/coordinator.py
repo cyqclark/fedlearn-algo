@@ -171,11 +171,11 @@ class FDNNCoordinator(Server):
         return next_phase
 
     def check_ser_deser(self, message):
-        #if self.remote:
-        if isinstance(message, ResponseMessage):
-            message.deserialize_body()
-        elif isinstance(message, RequestMessage):
-            message.serialize_body()
+        if self.remote:
+            if isinstance(message, ResponseMessage):
+                message.deserialize_body()
+            elif isinstance(message, RequestMessage):
+                message.serialize_body()
         return None
 
     def init_training_control(self):
@@ -258,18 +258,10 @@ class FDNNCoordinator(Server):
         # control init active
         requests = {}
         body = None
-        total_dim = 0
-        feat_dim = {}
         for client_info, resi in responses.items():
             self.check_ser_deser(resi)
             if not resi.body["is_active"]:
                 body = resi.body
-                total_dim += body['out_dim']
-            if resi.body['is_active'] == False:
-                token = resi.body['token']
-                feat_dim[token] = resi.body['out_dim']
-
-        body['feat_dim'] = feat_dim
         for client_info, resi in responses.items():
             requests[client_info] = self.make_request(resi, copy.deepcopy(body), "1")
         

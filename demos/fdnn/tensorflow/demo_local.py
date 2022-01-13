@@ -18,15 +18,14 @@ import socket
 import sys
 import pandas
 sys.path.append(os.getcwd())
-sys.path.append('/Users/bo.liu/Code/FederatedLearning/OpenSource/fedlearn-algo')
 from core.entity.common.machineinfo import MachineInfo
 from demos.fdnn.coordinator import FDNNCoordinator
 from demos.fdnn.client import FDNNClient
 import core.server.server
 
 # load and align data
-g1 = pandas.read_csv("../../data/classificationA/train0.csv")
-g2 = pandas.read_csv("../../data/classificationA/train1.csv")
+g1 = pandas.read_csv("data/classificationA/train0.csv")
+g2 = pandas.read_csv("data/classificationA/train1.csv")
 uid = g1.loc[:, ["uid"]]
 uid = pandas.merge(uid, g2.loc[:, ["uid"]], on="uid", how="inner")
 g1 = pandas.merge(uid, g1, on="uid", how="inner")
@@ -37,8 +36,8 @@ dataset2 = {"label": None,
             "feature": g2.loc[:, g2.columns[1:]].values}
 
 # load and align inference data
-g1 = pandas.read_csv("../../data/classificationA/inference0.csv")
-g2 = pandas.read_csv("../../data/classificationA/inference1.csv")
+g1 = pandas.read_csv("data/classificationA/inference0.csv")
+g2 = pandas.read_csv("data/classificationA/inference1.csv")
 uid = g1.loc[:, ["uid"]]
 uid = pandas.merge(uid, g2.loc[:, ["uid"]], on="uid", how="inner")
 g1 = pandas.merge(uid, g1, on="uid", how="inner")
@@ -47,7 +46,7 @@ dataset1["feature_inference"] = g1.loc[:, g1.columns[1:]].values
 dataset2["feature_inference"] = g2.loc[:, g2.columns[1:]].values
 
 # set the machine info for coordinator and client
-ip = '127.0.0.0'#'socket.gethostbyname(socket.gethostname())'
+ip = socket.gethostbyname(socket.gethostname())
 coordinator_info = MachineInfo(ip=ip, port="8890", token="%s:8890"%ip)
 client_info1 = MachineInfo(ip=ip, port="8891", token="%s:8891"%ip)
 client_info2 = MachineInfo(ip=ip, port="8892", token="%s:8892"%ip)
