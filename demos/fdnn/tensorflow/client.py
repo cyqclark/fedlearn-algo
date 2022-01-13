@@ -44,7 +44,8 @@ from core.entity.common.message import RequestMessage, ResponseMessage
 from core.client.client import Client
 from core.grpc_comm.grpc_server import serve
 
-import ActiveModel, PassiveModel, utils
+import ActiveModel, PassiveModel, util
+from coordinator import FDNNCoordinator
 
 
 class FDNNClient(Client):
@@ -81,6 +82,7 @@ class FDNNClient(Client):
                  remote=False):
         # super.__init__(parameter)
         # pass arguments
+        super().__init__(machine_info)
         self.parameter = parameter
         self.machine_info = machine_info
         self.dataset = dataset
@@ -125,18 +127,18 @@ class FDNNClient(Client):
             The response message which is ready for sending out.
         """
         # check if the current client is an active client.
-        #if "is_active" not in body:
-        #    body["is_active"] = self.is_active
-        #if "model_token" not in body:
-        #    body["model_token"] = request.body["model_token"]
-        #if "model_parameters" not in body:
-        #    body["model_parameters"] = request.body["model_parameters"]
+        if "is_active" not in body:
+            body["is_active"] = self.is_active
+        if "model_token" not in body:
+            body["model_token"] = request.body["model_token"]
+        if "model_parameters" not in body:
+            body["model_parameters"] = request.body["model_parameters"]
         response = ResponseMessage(self.machine_info,
                                    request.server_info,
                                    body,
                                    phase_id=request.phase_id)
-
-        response.serialize_body()
+        if self.remote:
+            response.serialize_body()
         return response
 
     def make_prediction(self, treeid, nodeid):
@@ -194,11 +196,11 @@ class FDNNClient(Client):
         return self.make_response(request, body)
 
     def check_ser_deser(self, message):
-        #if self.remote:
-        if isinstance(message, RequestMessage):
-            message.deserialize_body()
-        elif isinstance(message, ResponseMessage):
-            message.serialize_body()
+        if self.remote:
+            if isinstance(message, RequestMessage):
+                message.deserialize_body()
+            elif isinstance(message, ResponseMessage):
+                message.serialize_body()
         return None
 
     def VFDNN_client_phase0_passive(self, request):
@@ -211,14 +213,16 @@ class FDNNClient(Client):
 
         d = request.body
         model_token = d["model_token"]
-        feature = self.dataset['feature']
-        feature_name = self.dataset['feature_name']
-        #data = {"feature": self.dataset["feature"],
-        #parameters = self.parameter
-        cate_feat, num_feat = utils.data_preprocessing(feature, feature_name)
-        model = PassiveModel.PassiveModel(cate_feat, num_feat)
-        body = {'is_active': self.is_active, 'token': self.machine_info.token, 'out_dim': model.out_dim}
-
+        data = {"x": self.dataset["feature"]}
+        parameters = self.parameter
+        model, _ = PassiveModel.get_or_assign_model_passive(
+            model_token, parameters, data)
+        connect_layer_weights = model.get_connect_layer_weights()
+        model_bytes = []
+        for weighti in connect_layer_weights:
+            bytei = util.serialize_numpy_array(weighti, method="numpy")
+            model_bytes.append(bytei)
+        body = self.make_body(model_token, model_bytes, d["model_parameters"])
         return self.make_response(request, body)
 
     def VFDNN_client_phase0_active(self, request):
@@ -227,11 +231,11 @@ class FDNNClient(Client):
         if not self.is_active:
             return self.make_response(request, {})
 
-        body = request.body
-        model_token = body["model_token"]
+        d = request.body
+        model_token = d["model_token"]
         parameters = self.parameter
         # parse passive model weights
-        tmp = d["out_dim"]
+        tmp = d["model_bytes"]
         weights = []
         for bytei in tmp:
             weighti = util.deserialize_numpy_array(bytei, method="numpy")
@@ -239,11 +243,6 @@ class FDNNClient(Client):
         data = {}
         data["x"] = self.dataset["feature"]
         data["y"] = self.dataset["label"]
-        feature = self.dataset['feature']
-        feature_name = self.dataset['feature_name']
-        out_dim = body['total_dim']
-        cate_feat, num_feat = utils.data_preprocessing(feature, feature_name)
-        model = ActiveModel.ActiveModel()
         model, trainer = ActiveModel.get_or_assign_model_active(
             model_token,
             weights,
@@ -355,6 +354,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-I', '--index', type=int, required=True, help='index of client')
     parser.add_argument('-C', '--python_config_file', type=str, required=True, help='python config file')
+    parser.add_argument('-F', '--flag_network', type=str, required=False, default="F", help='flag to use new network api')
 
     args = parser.parse_args()
     idx = args.index
@@ -379,5 +379,27 @@ if __name__ == "__main__":
     parameter = config.parameter
     client = FDNNClient(client_info, parameter, dataset, remote=True)
 
-    serve(client)
+    if ("flag_network" not in args) or (args.flag_network == "F"):
+        # old api framework
+        serve(client)
+    elif args.flag_network == "T":    
+        # set active client
+        if config.active_index == args.index:
+            coordinator_info = MachineInfo(ip=ip, port=port,
+                                           token=config.coordinator_ip_and_port)
+            client_infos = []
+            for ci in config.client_ip_and_port:
+                ip, port = ci.split(":")
+                client_infos.append(MachineInfo(ip=ip, port=port, token=ci))
+            coordinator = FDNNCoordinator(coordinator_info,
+                                          client_infos,
+                                          config.parameter,
+                                          remote=True)
+            client.load_coordinator(coordinator)
+            client._exp_training_pipeline("0")
+        else:
+            serve(client)
+    else:
+        raise ValueError("Invalid flag network")
+
 
