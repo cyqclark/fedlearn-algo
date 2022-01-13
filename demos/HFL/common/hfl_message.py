@@ -145,8 +145,6 @@ class HFL_MSG():
         Convert model weights of list to numpy array
         """
         return {name: np.array(lvalue) for name, lvalue in data.items()}
-
-    def numpy_weight_to_bytes(self) -> Dict[str, bytes]:
         names = []
         params = []
         if HFL_MSG.KEY_PARAMS_WEIGHTS not in self.params:

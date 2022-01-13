@@ -65,25 +65,20 @@ According to the data partition differences, existing FL algorithms can be mainl
 * [**Federated HFL**](demos/HFL/README.md). An extension framework in FedLearn-algo designed to provide flexible and easy-to-use algorithms in Horizontal Federated scenarios.
 
 ## Documentation
-* [**Technical Report**](docs/reports/2107.04129.pdf)
+* [**Technical Report**](docs/reports/FedLearn-algo.pdf)
 
 * [**API Documentation**](docs/api/build/html/index.html)
 
 ## License
-The distribution of FedLearn-algo in this repository is under [**Apache 2.0 license**](LICENSE). 
+The distribution of FedLearn-algo in this repository is under this [**license**](LICENSE). 
 
 ## Citation
-Please cite [**FedLearn-algo**](https://arxiv.org/abs/2107.04129) in your publications if it makes some contributions to your research/development:
+Please cite FedLearn-algo in your publications if it makes some contributions to your research/development:
 ```
-@article{liu2021fedlearn,
-  title={Fedlearn-Algo: A flexible open-source privacy-preserving machine learning platform},
-  author={Liu, Bo and Tan, Chaowei and Wang, Jiazhou and Zeng, Tao and Shan, Huasong and Yao, Houpu and Heng, Huang and Dai, Peng and Bo, Liefeng and Chen, Yanqing},
-  journal={arXiv preprint arXiv:2107.04129},
-  url={https://arxiv.org/abs/2107.04129},
-  year={2021}
+@article{boliu2021fedlearnalgo,
+  Author = {Liu, Bo and Tan, Chaowei and Wang, Jiazhou and Zeng, Tao, Shan, Huasong and Yao, Houpu and Huang, Heng and Dai, Peng and Bo, Liefeng and Chen, Yanqing},
+  Journal = {prepare to release in arXiv preprint},
+  Title = {Fedlearn-Algo: A flexible open-source privacy-preserving machine learning platform},
+  Year = {2021}
 }
 ```
-
-## Contact us
-Please contact us at <fedlearn-support@jd.com> if you have any questions.
-

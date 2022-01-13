@@ -17,11 +17,12 @@ import os
 import socket
 import sys
 import pandas
+
 sys.path.append(os.getcwd())
 sys.path.append('/Users/bo.liu/Code/FederatedLearning/OpenSource/fedlearn-algo')
 from core.entity.common.machineinfo import MachineInfo
-from demos.fdnn.coordinator import FDNNCoordinator
-from demos.fdnn.client import FDNNClient
+from demos.fdnn_new.coordinator import FDNNCoordinator
+from demos.fdnn_new.client import FDNNClient
 import core.server.server
 
 # load and align data
@@ -32,10 +33,11 @@ uid = pandas.merge(uid, g2.loc[:, ["uid"]], on="uid", how="inner")
 g1 = pandas.merge(uid, g1, on="uid", how="inner")
 g2 = pandas.merge(uid, g2, on="uid", how="inner")
 dataset1 = {"label": g1.Outcome.values.astype(float),
-            "feature": g1.loc[:, g1.columns[1:-1]].values}
+            "feature": g1.loc[:, g1.columns[1:-1]],
+            "feature_name":g1.columns[1:-1].values.tolist()}
 dataset2 = {"label": None,
-            "feature": g2.loc[:, g2.columns[1:]].values}
-
+            "feature": g2.loc[:, g2.columns[1:]],
+            "feature_name":g2.columns[1:].values.tolist()}
 # load and align inference data
 g1 = pandas.read_csv("../../data/classificationA/inference0.csv")
 g2 = pandas.read_csv("../../data/classificationA/inference1.csv")
@@ -47,15 +49,14 @@ dataset1["feature_inference"] = g1.loc[:, g1.columns[1:]].values
 dataset2["feature_inference"] = g2.loc[:, g2.columns[1:]].values
 
 # set the machine info for coordinator and client
-ip = '127.0.0.0'#'socket.gethostbyname(socket.gethostname())'
-coordinator_info = MachineInfo(ip=ip, port="8890", token="%s:8890"%ip)
-client_info1 = MachineInfo(ip=ip, port="8891", token="%s:8891"%ip)
-client_info2 = MachineInfo(ip=ip, port="8892", token="%s:8892"%ip)
+ip = '127.0.0.0'  # 'socket.gethostbyname(socket.gethostname())'
+coordinator_info = MachineInfo(ip=ip, port="8890", token="server")
+client_info1 = MachineInfo(ip=ip, port="8891", token="client1")
+client_info2 = MachineInfo(ip=ip, port="8892", token="client2")
 
 parameter = {
     "batch_size": 32,
-    "num_epoch": 2,
-}
+    "num_epoch": 2}
 
 # create client and coordinator
 client1 = FDNNClient(client_info1, parameter, dataset1)
@@ -64,7 +65,7 @@ client_map = {client_info1: client1,
               client_info2: client2,
               }
 
-client_infos = [client_info1, client_info2]#, client_info3]
+client_infos = [client_info1, client_info2]  # , client_info3]
 coordinator = FDNNCoordinator(coordinator_info, client_infos, parameter)
 
 # training
@@ -76,11 +77,11 @@ init_requests = coordinator.init_training_control()
 responses = {}
 for client_info, reqi in init_requests.items():
     client = client_map[client_info]
-    responses[client_info] = client.control_flow_client(reqi.phase_id, reqi)
+    responses[client_info] = client.control_flow_client(reqi.phase_id, reqi.copy())
 
 while True:
     phase = coordinator.get_next_phase(phase)
-    print("Phase %s start..."%phase)
+    print("Phase %s start..." % phase)
     requests = coordinator.control_flow_coordinator(phase, responses)
     responses = {}
     if coordinator.is_training_continue():
@@ -91,10 +92,8 @@ while True:
         break
 for client_info, client in client_map.items():
     print(str(client_info))
-    
+
 print("Train finished")
-
-
 
 # inference
 phase = "-1"
@@ -108,8 +107,8 @@ for client_info, reqi in init_requests.items():
 
 while True:
     phase = coordinator.get_next_phase(phase)
-    #logging.info("Phase %s start..."%phase)
-    print("Phase %s start..."%phase)
+    # logging.info("Phase %s start..."%phase)
+    print("Phase %s start..." % phase)
     requests = coordinator.control_flow_coordinator(phase, responses)
     responses = {}
     if coordinator.is_inference_continue():
