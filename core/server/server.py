@@ -15,7 +15,7 @@
 
 from core.entity.common.machineinfo import MachineInfo
 from core.entity.common.message import RequestMessage, ResponseMessage
-from core.grpc_comm.grpc_client import send_request
+from core.grpc_comm.grpc_node import send_request
 
 from abc import ABC, abstractmethod
 from threading import Thread
@@ -116,7 +116,7 @@ class Server(ABC):
         """
 
     @abstractmethod
-    def is_inference_continue(self) -> bool:
+    def is_inference_continue(self, *args) -> bool:
         """
         Check if inference continues or not.
 
@@ -180,6 +180,8 @@ class Server(ABC):
         # Training process finish. Send finish signal to all clients.
         requests = self.post_training_session()
         responses = call_grpc_client(requests, is_parallel)
+        
+        
 
     def inference_pipeline(self, init_phase:str, clients: List[MachineInfo], is_parallel=True) -> None:
         """
