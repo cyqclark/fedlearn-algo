@@ -38,6 +38,9 @@ class IterativeAffineKey(object):
     Key class for randomized iterative affine homomorphic encryption scheme.
     """
     def __init__(self, n, a, g, x, encode_precision=2**100):
+        raise NotImplementedError(
+            r"""Updated at 2021-01-13: The RIAC scheme has been found security flaw,
+            therefore this scheme is disabled until a secure version is released.""")
         assert len(n) == len(a), "Length of n must be aligned with length of a"
         self.n = n
         self.a = a
@@ -116,6 +119,9 @@ class IterativeAffineKey(object):
 
 class IterativeAffineCiphertext(object):
     def __init__(self, cipher1, cipher2, n_final, multiple=2**50, mult_times=0):
+        raise NotImplementedError(
+            r"""Updated at 2021-01-13: The RIAC scheme has been found security flaw,
+            therefore this scheme is disabled until a secure version is released.""")
         self.cipher1 = cipher1
         self.cipher2 = cipher2
         self.n_final = n_final
