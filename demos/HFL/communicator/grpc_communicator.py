@@ -38,8 +38,7 @@ from core.entity.common.message import (RequestMessage, ResponseMessage)
 from core.proto.transmission_pb2 import ReqResMessage
 from core.grpc_comm.grpc_converter import grpc_msg_to_common_msg, common_msg_to_grpc_msg
 
-#from core.grpc_comm import grpc_server
-from core.grpc_comm.grpc_client import GRPCClient
+from core.grpc_comm.grpc_node import (GRPCNode, send_request)
 
 from demos.HFL.communicator.com_utils import (
     MachineInfo_Wrapper,
@@ -59,24 +58,24 @@ import grpc
 
 # global variables
 _MAX_MESSAGE_LENGTH = 1 << 30
-class grpc_server():
-    def  serve(self, grpc_servicer: TransmissionServicer) -> None:
-        options = [
-        ('grpc.max_send_message_length', _MAX_MESSAGE_LENGTH),
-        ('grpc.max_receive_message_length', _MAX_MESSAGE_LENGTH),
-        ]
-        self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=50), options=options)
-        add_TransmissionServicer_to_server(grpc_servicer, self.server)
-        self.server.add_insecure_port("%s:%s" % (grpc_servicer.machine_info.ip, grpc_servicer.machine_info.port))
-        logger.info("starting %s:%s" % (grpc_servicer.machine_info.ip, grpc_servicer.machine_info.port))
-        self.server.start()
-        self.server.wait_for_termination()
-    def stop(self):
-        self.server.stop(1)    
+# class grpc_server():
+    # def  serve(self, grpc_servicer: TransmissionServicer) -> None:
+        # options = [
+        # ('grpc.max_send_message_length', _MAX_MESSAGE_LENGTH),
+        # ('grpc.max_receive_message_length', _MAX_MESSAGE_LENGTH),
+        # ]
+        # self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=50), options=options)
+        # add_TransmissionServicer_to_server(grpc_servicer, self.server)
+        # self.server.add_insecure_port("%s:%s" % (grpc_servicer.machine_info.ip, grpc_servicer.machine_info.port))
+        # logger.info("starting %s:%s" % (grpc_servicer.machine_info.ip, grpc_servicer.machine_info.port))
+        # self.server.start()
+        # self.server.wait_for_termination()
+    # def stop(self):
+        # self.server.stop(1)    
 
 class GRPC_Sender(Message_Sender):
     def send(self, data:RequestMessage):
-        return GRPCClient.send_request(data)
+        return send_request(data)
 
 
 class HFLMsg_CoreMsg_Converter(HFL_Message_Raw_Converter):
@@ -131,11 +130,13 @@ class GRPC_Receiver(Message_Receiver, TransmissionServicer):
 
 class GRPC_Communicator(GeneralCommunicator):
     def start_message_receiving_routine(self):
-         self.grpc_server = grpc_server()
-         thread = threading.Thread(target=self.grpc_server.serve, args=(self.receiver,))
-         thread.start()
+         self.grpc_server = GRPCNode(self.receiver.machine_info)
+         self.grpc_server.start_serve(self.receiver)
+        
+        
     
     def stop(self):
         super(GRPC_Communicator, self).stop()
-        self.grpc_server.stop()
+        self.grpc_server.stop_serve()
+       
 
