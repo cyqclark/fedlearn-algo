@@ -41,5 +41,5 @@ Notice that client0 should be the last one to start.
 
 
 ## Reference
-
-TBA
+Yao, Houpu, Jiazhou Wang, Peng Dai, Liefeng Bo, and Yanqing Chen. "An Efficient and Robust System for Vertically Federated Random Forest." arXiv preprint arXiv:2201.10761 (2022).
+(priprint is available at https://arxiv.org/pdf/2201.10761.pdf)
